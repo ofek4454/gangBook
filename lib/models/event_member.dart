@@ -48,18 +48,33 @@ class EventMember {
 
 class Car {
   String ownerId;
-  List<String> riders;
+  List<CarRider> riders;
   int places;
+  List<CarRider> requests;
 
-  Car(this.ownerId, this.riders, this.places);
+  Car({this.ownerId, this.riders, this.places, this.requests});
 
   factory Car.fromJson(String data) {
     if (data == null) return null;
     final _data = json.decode(data);
+
+    final List<dynamic> ridersData = _data['riders'];
+    final List<CarRider> _riders = [];
+    ridersData.forEach((rider) => _riders.add(CarRider.fromJson(rider)));
+
+    final List<dynamic> requestsData = _data['requests'];
+    final List<CarRider> _requests = [];
+    requestsData.forEach(
+      (rider) => _requests.add(
+        CarRider.fromJson(rider),
+      ),
+    );
+
     return Car(
-      _data['ownerId'],
-      _data['riders'],
-      _data['places'],
+      ownerId: _data['ownerId'],
+      places: _data['places'],
+      riders: _riders,
+      requests: _requests,
     );
   }
 
@@ -68,6 +83,33 @@ class Car {
       'ownerId': this.ownerId,
       'riders': this.riders,
       'places': this.places,
+      'requests': this.requests,
+    });
+  }
+}
+
+class CarRider {
+  String uid;
+  String name;
+  String pickupFrom;
+
+  CarRider({this.uid, this.name, this.pickupFrom});
+
+  factory CarRider.fromJson(String data) {
+    if (data == null) return null;
+    final _data = json.decode(data);
+    return CarRider(
+      uid: _data['uid'],
+      name: _data['name'],
+      pickupFrom: _data['pickupFrom'],
+    );
+  }
+
+  String toJson() {
+    return json.encode({
+      'uid': this.uid,
+      'name': this.name,
+      'pickupFrom': this.pickupFrom,
     });
   }
 }

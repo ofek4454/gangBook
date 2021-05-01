@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/app_gang.dart';
+import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/meet.dart';
 import 'package:gangbook/services/database.dart';
 
@@ -20,5 +21,11 @@ class CurrentGang extends ChangeNotifier {
     } catch (e) {
       print(e);
     }
+  }
+
+  EventMember eventMemberById(String uid) {
+    final EventMember eventMember =
+        _meet.membersAreComming.firstWhere((member) => member.uid == uid);
+    return eventMember;
   }
 }

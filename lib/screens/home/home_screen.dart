@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_dialog.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_feed.dart';
 import 'package:gangbook/screens/home/local_widgets/upload_post_field.dart';
 import 'package:gangbook/screens/no_group/no_group_screen.dart';
 import 'package:gangbook/screens/root/root.dart';
+import 'package:gangbook/services/database.dart';
 import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -34,6 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _currentGang = Provider.of<CurrentGang>(context, listen: false);
+    final _currentUser = Provider.of<CurrentUser>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,

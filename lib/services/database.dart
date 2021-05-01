@@ -246,4 +246,117 @@ class AppDB {
     }
     return retVal;
   }
+
+  Future<String> addCar({int places, AppUser user, Meet meet}) async {
+    String retVal = 'error';
+    meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == user.uid)
+        .car = Car(
+      ownerId: user.uid,
+      riders: [],
+      places: places,
+      requests: [],
+    );
+    final List<String> membersAreCommingJson = [];
+    meet.membersAreComming.forEach((eventMember) {
+      membersAreCommingJson.add(eventMember.toJson());
+    });
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(user.gangId)
+          .collection('meets')
+          .doc(meet.id)
+          .update({
+        'membersAreComming': membersAreCommingJson,
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> joinToCar({
+    AppUser user,
+    Meet meet,
+    Car car,
+    String pickUpFrom,
+  }) async {
+    String retVal = 'error';
+    meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == car.ownerId)
+        .car
+        .requests
+        .add(CarRider(
+          name: user.fullName,
+          uid: user.uid,
+          pickupFrom: pickUpFrom,
+        ));
+    final List<String> membersAreCommingJson = [];
+    meet.membersAreComming.forEach((eventMember) {
+      membersAreCommingJson.add(eventMember.toJson());
+    });
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(user.gangId)
+          .collection('meets')
+          .doc(meet.id)
+          .update({
+        'membersAreComming': membersAreCommingJson,
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> confirmRideRequest({
+    String gangId,
+    String riderUid,
+    Meet meet,
+    Car car,
+    String pickUpFrom,
+  }) async {
+    String retVal = 'error';
+
+    final requstList = meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == car.ownerId)
+        .car
+        .requests;
+
+    final ridersList = meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == car.ownerId)
+        .car
+        .riders;
+
+    final index = requstList.indexWhere((rider) => rider.uid == riderUid);
+
+    final rider = requstList.elementAt(index);
+
+    requstList.removeAt(index);
+
+    ridersList.add(rider);
+
+    final List<String> membersAreCommingJson = [];
+    meet.membersAreComming.forEach((eventMember) {
+      membersAreCommingJson.add(eventMember.toJson());
+    });
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('meets')
+          .doc(meet.id)
+          .update({
+        'membersAreComming': membersAreCommingJson,
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
 }

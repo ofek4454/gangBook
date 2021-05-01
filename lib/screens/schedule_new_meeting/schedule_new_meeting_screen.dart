@@ -21,6 +21,7 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
   final timeController = TextEditingController();
   final dateController = TextEditingController();
   final moreInfoController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   DateTime meetingDate;
   TimeOfDay meetingTime;
@@ -28,6 +29,8 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
   bool isLoading = false;
 
   Future<void> _schedule() async {
+    final isValidate = _formKey.currentState.validate();
+    if (!isValidate) return;
     setState(() {
       isLoading = true;
     });
@@ -71,12 +74,14 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
     });
   }
 
-  Widget _buildCustomTextField(
-      {BuildContext context,
-      IconData icon,
-      String label,
-      TextEditingController controller}) {
-    return TextField(
+  Widget _buildCustomTextField({
+    BuildContext context,
+    IconData icon,
+    String label,
+    TextEditingController controller,
+    bool needValidation = true,
+  }) {
+    return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         border: OutlineInputBorder(
@@ -93,11 +98,19 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
           color: Theme.of(context).secondaryHeaderColor,
         ),
       ),
+      validator: !needValidation
+          ? null
+          : (val) {
+              if (val.isEmpty || val == null) {
+                return 'this field is required';
+              }
+              return null;
+            },
     );
   }
 
   _buildCustomTimePicker(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: timeController,
       decoration: InputDecoration(
         border: OutlineInputBorder(
@@ -114,6 +127,12 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
           color: Theme.of(context).secondaryHeaderColor,
         ),
       ),
+      validator: (val) {
+        if (val.isEmpty || val == null) {
+          return 'this field is required';
+        }
+        return null;
+      },
       onTap: () => showTimePicker(
         context: context,
         initialTime: TimeOfDay.now(),
@@ -127,7 +146,7 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
   }
 
   _buildCustomDatePicker(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: dateController,
       decoration: InputDecoration(
         border: OutlineInputBorder(
@@ -144,6 +163,12 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
           color: Theme.of(context).secondaryHeaderColor,
         ),
       ),
+      validator: (val) {
+        if (val.isEmpty || val == null) {
+          return 'this field is required';
+        }
+        return null;
+      },
       onTap: () => showDatePicker(
         context: context,
         initialDate: DateTime.now(),
@@ -166,50 +191,54 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
       ),
       body: Container(
         padding: EdgeInsets.all(20),
-        child: ListView(
-          children: [
-            _buildCustomTextField(
-              context: context,
-              label: 'Meeting title',
-              icon: Icons.local_fire_department,
-              controller: titleController,
-            ),
-            SizedBox(height: 15),
-            _buildCustomTextField(
-              context: context,
-              label: 'location',
-              icon: Icons.location_on_outlined,
-              controller: locationController,
-            ),
-            SizedBox(height: 15),
-            _buildCustomTimePicker(context),
-            SizedBox(height: 15),
-            _buildCustomDatePicker(context),
-            SizedBox(height: 15),
-            _buildCustomTextField(
-              context: context,
-              label: 'more...',
-              icon: Icons.text_fields_rounded,
-              controller: moreInfoController,
-            ),
-            FlatButton(
-              onPressed: () {
-                FocusScope.of(context).unfocus();
-              },
-              child: Text('unfocus'),
-            ),
-            isLoading
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : RaisedButton(
-                    onPressed: () => _schedule(),
-                    child: Text(
-                      'Schedule',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              _buildCustomTextField(
+                context: context,
+                label: 'Meeting title',
+                icon: Icons.local_fire_department,
+                controller: titleController,
+              ),
+              SizedBox(height: 15),
+              _buildCustomTextField(
+                context: context,
+                label: 'location',
+                icon: Icons.location_on_outlined,
+                controller: locationController,
+              ),
+              SizedBox(height: 15),
+              _buildCustomDatePicker(context),
+              SizedBox(height: 15),
+              _buildCustomTimePicker(context),
+              SizedBox(height: 15),
+              _buildCustomTextField(
+                context: context,
+                label: 'more...',
+                icon: Icons.text_fields_rounded,
+                controller: moreInfoController,
+                needValidation: false,
+              ),
+              FlatButton(
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                },
+                child: Text('unfocus'),
+              ),
+              isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : RaisedButton(
+                      onPressed: () => _schedule(),
+                      child: Text(
+                        'Schedule',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
                     ),
-                  ),
-          ],
+            ],
+          ),
         ),
       ),
     );
