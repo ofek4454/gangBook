@@ -88,10 +88,12 @@ class AppDB {
           'membersAreComming': FieldValue.arrayUnion(
             [
               EventMember(
-                user.uid,
-                user.fullName,
-                ConfirmationType.HasntConfirmed,
-                null,
+                uid: user.uid,
+                name: user.fullName,
+                isComming: ConfirmationType.HasntConfirmed,
+                car: null,
+                carRequests: [],
+                carRide: null,
               ).toJson(),
             ],
           ),
@@ -170,28 +172,25 @@ class AppDB {
     try {
       final gang = await getGangInfoById(user.gangId);
       final json = EventMember(
-        user.uid,
-        user.fullName,
-        ConfirmationType.Arrive,
-        null,
+        uid: user.uid,
+        name: user.fullName,
+        isComming: ConfirmationType.Arrive,
+        car: null,
+        carRequests: [],
+        carRide: null,
       ).toJson();
 
-      membersAreComming.add(
-        EventMember(
-          user.uid,
-          user.fullName,
-          ConfirmationType.Arrive,
-          null,
-        ).toJson(),
-      );
+      membersAreComming.add(json);
       gang.members.forEach((gangMember) {
         if (gangMember.uid != user.uid) {
           membersAreComming.add(
             EventMember(
-              gangMember.uid,
-              gangMember.name,
-              ConfirmationType.HasntConfirmed,
-              null,
+              uid: gangMember.uid,
+              name: gangMember.name,
+              isComming: ConfirmationType.HasntConfirmed,
+              car: null,
+              carRequests: [],
+              carRide: null,
             ).toJson(),
           );
         }
@@ -293,6 +292,10 @@ class AppDB {
           uid: user.uid,
           pickupFrom: pickUpFrom,
         ));
+    meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == user.uid)
+        .carRequests
+        .add(car.ownerId);
     final List<String> membersAreCommingJson = [];
     meet.membersAreComming.forEach((eventMember) {
       membersAreCommingJson.add(eventMember.toJson());
@@ -339,6 +342,21 @@ class AppDB {
     requstList.removeAt(index);
 
     ridersList.add(rider);
+
+    final riderEventMember = meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == riderUid);
+
+    riderEventMember.carRequests.remove(car.ownerId);
+    riderEventMember.carRequests?.forEach((carOwnerId) {
+      meet.membersAreComming
+          .firstWhere((eventMember) => eventMember.uid == carOwnerId)
+          .car
+          .requests
+          .removeWhere((carRider) => carRider.uid == riderEventMember.uid);
+    });
+
+    riderEventMember.carRequests.clear();
+    riderEventMember.carRide = car.ownerId;
 
     final List<String> membersAreCommingJson = [];
     meet.membersAreComming.forEach((eventMember) {

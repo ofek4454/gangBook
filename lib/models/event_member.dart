@@ -11,8 +11,17 @@ class EventMember {
   String name;
   ConfirmationType isComming;
   Car car;
+  List<String> carRequests;
+  String carRide;
 
-  EventMember(this.uid, this.name, this.isComming, this.car);
+  EventMember({
+    this.uid,
+    this.name,
+    this.isComming,
+    this.car,
+    this.carRequests,
+    this.carRide,
+  });
 
   factory EventMember.fromJson(String data) {
     final _data = json.decode(data);
@@ -29,10 +38,12 @@ class EventMember {
         break;
     }
     return EventMember(
-      _data['uid'],
-      _data['name'],
-      isComming,
-      Car.fromJson(_data['car']),
+      uid: _data['uid'],
+      name: _data['name'],
+      isComming: isComming,
+      car: Car.fromJson(_data['car']),
+      carRequests: _data['carRequests'],
+      carRide: _data['carRide'],
     );
   }
 
@@ -42,6 +53,8 @@ class EventMember {
       'name': this.name,
       'isComming': this.isComming.toString(),
       'car': car?.toJson(),
+      'carRequests': this.carRequests,
+      'carRide': this.carRide,
     });
   }
 }
