@@ -29,7 +29,7 @@ class PostItem extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: fieldHeight * 0.3,
-                    child: Text(nameInitials(data['author'])),
+                    child: Text(nameInitials(data['author']).toUpperCase()),
                   ),
                   SizedBox(width: 10),
                   Text(

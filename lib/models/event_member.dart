@@ -42,7 +42,7 @@ class EventMember {
       name: _data['name'],
       isComming: isComming,
       car: Car.fromJson(_data['car']),
-      carRequests: _data['carRequests'],
+      carRequests: List<String>.from(_data['carRequests']) ?? [],
       carRide: _data['carRide'],
     );
   }

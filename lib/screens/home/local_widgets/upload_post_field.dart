@@ -88,7 +88,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
               children: [
                 CircleAvatar(
                   radius: fieldHeight * 0.25,
-                  child: Text(nameInitials(user.fullName)),
+                  child: Text(nameInitials(user.fullName).toUpperCase()),
                 ),
                 SizedBox(width: 10),
                 Expanded(

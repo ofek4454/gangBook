@@ -377,4 +377,84 @@ class AppDB {
     }
     return retVal;
   }
+
+  Future<String> removeCarRider({
+    String gangId,
+    String riderUid,
+    Meet meet,
+    Car car,
+  }) async {
+    String retVal = 'error';
+
+    final ridersList = car.riders;
+
+    ridersList.removeWhere((rider) => rider.uid == riderUid);
+
+    final riderEventMember = meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == riderUid);
+
+    riderEventMember.carRide = null;
+
+    final List<String> membersAreCommingJson = [];
+    meet.membersAreComming.forEach((eventMember) {
+      membersAreCommingJson.add(eventMember.toJson());
+    });
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('meets')
+          .doc(meet.id)
+          .update({
+        'membersAreComming': membersAreCommingJson,
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> removeCar({
+    String gangId,
+    Meet meet,
+    Car car,
+  }) async {
+    String retVal = 'error';
+
+    car.requests.forEach((rider) {
+      meet.membersAreComming.forEach((member) {
+        if (rider.uid == member.uid) member.carRequests.remove(car.ownerId);
+      });
+    });
+
+    car.riders.forEach((rider) {
+      meet.membersAreComming.forEach((member) {
+        if (rider.uid == member.uid) member.carRide = null;
+      });
+    });
+
+    meet.membersAreComming
+        .firstWhere((member) => member.uid == car.ownerId)
+        .car = null;
+
+    final List<String> membersAreCommingJson = [];
+    meet.membersAreComming.forEach((eventMember) {
+      membersAreCommingJson.add(eventMember.toJson());
+    });
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('meets')
+          .doc(meet.id)
+          .update({
+        'membersAreComming': membersAreCommingJson,
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
 }

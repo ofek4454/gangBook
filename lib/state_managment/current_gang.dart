@@ -11,7 +11,7 @@ class CurrentGang extends ChangeNotifier {
   AppGang get gang => _gang;
   Meet get meet => _meet;
 
-  void updateStateFromDB(String gangId) async {
+  Future<void> updateStateFromDB(String gangId) async {
     try {
       _gang = await AppDB().getGangInfoById(gangId);
       if (_gang.meetId != null) {

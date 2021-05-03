@@ -7,6 +7,9 @@ import 'package:gangbook/state_managment/current_user.dart';
 import 'package:provider/provider.dart';
 
 class EvetMembersArrivingList extends StatelessWidget {
+  final CurrentGang currentGang;
+  EvetMembersArrivingList(this.currentGang);
+
   Widget _buildNameRow(EventMember member, Color textColor,
       [BuildContext context]) {
     return Padding(
@@ -30,7 +33,6 @@ class EvetMembersArrivingList extends StatelessWidget {
 
   Widget _buildCar(Car car, BuildContext context) {
     final currentUser = Provider.of<CurrentUser>(context, listen: false);
-    final _currentGang = Provider.of<CurrentGang>(context, listen: false);
 
     Color color = Colors.green;
     if (car.places - 1 == car.riders.length)
@@ -76,7 +78,7 @@ class EvetMembersArrivingList extends StatelessWidget {
               );
               return;
             }
-            if (_currentGang.meet.membersAreComming
+            if (currentGang.meet.membersAreComming
                     .firstWhere((em) => em.uid == currentUser.user.uid)
                     .car !=
                 null) {
@@ -93,10 +95,13 @@ class EvetMembersArrivingList extends StatelessWidget {
             }
             AppDB()
                 .joinToCar(
-                    user: currentUser.user, meet: _currentGang.meet, car: car)
+              user: currentUser.user,
+              meet: currentGang.meet,
+              car: car,
+            )
                 .then((value) {
               Fluttertoast.showToast(
-                msg: "Joined successfully!",
+                msg: "request sent successfully!",
                 toastLength: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIosWeb: 1,
@@ -127,13 +132,11 @@ class EvetMembersArrivingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _currentGang = Provider.of<CurrentGang>(context, listen: false);
-
     final List<EventMember> arriving = [];
     final List<EventMember> notArriving = [];
     final List<EventMember> hasntConfirmed = [];
 
-    _currentGang.meet.membersAreComming.forEach((em) {
+    currentGang.meet.membersAreComming.forEach((em) {
       switch (em.isComming) {
         case ConfirmationType.Arrive:
           arriving.add(em);

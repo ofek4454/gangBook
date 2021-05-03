@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/models/app_user.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/meet.dart';
+import 'package:gangbook/screens/home/local_widgets/meeting_widgets/car_owner_controllers.dart';
 import 'package:gangbook/services/database.dart';
 import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
@@ -137,16 +138,23 @@ class UserArrivalControlButtons extends StatelessWidget {
     return Row(
       children: [
         OutlinedButton(
-          child: Icon(
-            Icons.directions_car_outlined,
-            color: eventMember.car == null ? Colors.red : Colors.green,
-          ),
-          onPressed: () => eventMember.car != null
-              ? null
-              : addCar(context, _currentUser.user, _currentGang.meet).then(
+            child: Icon(
+              Icons.directions_car_outlined,
+              color: eventMember.car == null ? Colors.red : Colors.green,
+            ),
+            onPressed: () {
+              if (eventMember.car == null) {
+                addCar(context, _currentUser.user, _currentGang.meet).then(
                   (value) =>
-                      _currentGang.updateStateFromDB(_currentUser.user.gangId)),
-        ),
+                      _currentGang.updateStateFromDB(_currentUser.user.gangId),
+                );
+              } else {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (ctx) => CarOwnerControllers(_currentGang),
+                );
+              }
+            }),
         SizedBox(width: 10),
         Expanded(
           child: OutlinedButton(

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/event_member.dart';
+import 'package:gangbook/screens/home/local_widgets/meeting_widgets/meeting_timer.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/user_arrival_control_buttons.dart';
 import 'package:gangbook/services/database.dart';
 import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/utils/time_left.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -68,7 +70,10 @@ class ThereIsMeet extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 10),
+              MeetingTimer(_currentGang.meet.meetingAt.toDate()),
+              SizedBox(height: 10),
               UserArrivalControlButtons(),
+              SizedBox(height: 10),
               if (_currentGang.eventMemberById(_currentUser.user.uid).car !=
                   null) ...[
                 if (_currentGang
@@ -98,7 +103,7 @@ class ThereIsMeet extends StatelessWidget {
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
-                      builder: (_) => EvetMembersArrivingList(),
+                      builder: (_) => EvetMembersArrivingList(_currentGang),
                     );
                   },
                   icon: Icon(Icons.people_alt_outlined),
