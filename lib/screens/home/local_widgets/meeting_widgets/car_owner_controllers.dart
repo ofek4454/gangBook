@@ -28,7 +28,7 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
             style: Theme.of(context).textTheme.headline6,
           ),
           SizedBox(height: 10),
-          Text('extra places: ${car.places}'),
+          Text('extra places: ${car.riders.length}/${car.places}'),
           ...car.riders
               .map(
                 (rider) => ListTile(
