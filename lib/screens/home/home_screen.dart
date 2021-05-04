@@ -54,26 +54,29 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {},
         ),
       ),
-      body: ListView(
-        padding: EdgeInsets.only(left: 20, right: 20),
-        children: [
-          SizedBox(height: 20),
-          MeetingDialog(),
-          SizedBox(height: 20),
-          UploadPostField(),
-          SizedBox(height: 20),
-          PostsFeed(),
-          SizedBox(height: 20),
-          RaisedButton(
-            onPressed: () => _signout(context),
-            child: Text('signOut'),
-          ),
-          RaisedButton(
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => NoGroupScreeen())),
-            child: Text('noGroup'),
-          ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () => _currentGang.updateStateFromDB(_currentGang.gang.id),
+        child: ListView(
+          padding: EdgeInsets.only(left: 20, right: 20),
+          children: [
+            SizedBox(height: 20),
+            MeetingDialog(),
+            SizedBox(height: 20),
+            UploadPostField(),
+            SizedBox(height: 20),
+            PostsFeed(),
+            SizedBox(height: 20),
+            RaisedButton(
+              onPressed: () => _signout(context),
+              child: Text('signOut'),
+            ),
+            RaisedButton(
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => NoGroupScreeen())),
+              child: Text('noGroup'),
+            ),
+          ],
+        ),
       ),
     );
   }

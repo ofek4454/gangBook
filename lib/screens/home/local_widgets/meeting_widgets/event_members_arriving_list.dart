@@ -78,12 +78,25 @@ class EvetMembersArrivingList extends StatelessWidget {
               );
               return;
             }
-            if (currentGang.meet.membersAreComming
-                    .firstWhere((em) => em.uid == currentUser.user.uid)
-                    .car !=
+            if (currentGang.eventMemberById(currentUser.user.uid).carRide !=
                 null) {
               Fluttertoast.showToast(
                 msg: "You are placed in another car!",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0,
+              );
+              return;
+            }
+            if (currentGang
+                .eventMemberById(currentUser.user.uid)
+                .carRequests
+                .contains(car.ownerId)) {
+              Fluttertoast.showToast(
+                msg: "You are alredy request to join this car!",
                 toastLength: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIosWeb: 1,

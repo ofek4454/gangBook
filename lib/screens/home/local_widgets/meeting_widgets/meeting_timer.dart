@@ -12,7 +12,8 @@ class MeetingTimer extends StatefulWidget {
   _MeetingTimerState createState() => _MeetingTimerState();
 }
 
-class _MeetingTimerState extends State<MeetingTimer> {
+class _MeetingTimerState extends State<MeetingTimer>
+    with AutomaticKeepAliveClientMixin<MeetingTimer> {
   Timer timer;
   String timeLeft;
 
@@ -27,6 +28,12 @@ class _MeetingTimerState extends State<MeetingTimer> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    timer.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return timeLeft == null
         ? CircularProgressIndicator.adaptive()
@@ -34,4 +41,8 @@ class _MeetingTimerState extends State<MeetingTimer> {
             child: Text(timeLeft),
           );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
