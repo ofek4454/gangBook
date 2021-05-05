@@ -47,6 +47,7 @@ class AppDB {
   Future<String> createGang(String gangName, AppUser user) async {
     String retVal = 'error';
     List<String> members = [];
+
     try {
       members.add(GangMember(user.uid, user.fullName).toJson());
       final _docRef = await _firestore.collection('gangs').add({
@@ -54,6 +55,7 @@ class AppDB {
         'leader': user.uid,
         'members': members,
         'createdAt': Timestamp.now(),
+        'meetIds': [],
       });
       await _firestore.collection('users').doc(user.uid).update({
         'gangId': _docRef.id,
@@ -77,27 +79,29 @@ class AppDB {
         'gangId': gangId,
       });
       final gangData = await _firestore.collection('gangs').doc(gangId).get();
-      final meetId = gangData.data()['meetId'];
-      if (meetId != null) {
-        await _firestore
-            .collection('gangs')
-            .doc(gangId)
-            .collection('meets')
-            .doc(meetId)
-            .update({
-          'membersAreComming': FieldValue.arrayUnion(
-            [
-              EventMember(
-                uid: user.uid,
-                name: user.fullName,
-                isComming: ConfirmationType.HasntConfirmed,
-                car: null,
-                carRequests: [],
-                carRide: null,
-              ).toJson(),
-            ],
-          ),
-        });
+      final List<dynamic> meetIds = gangData.data()['meetIds'] ?? [];
+      if (meetIds.isNotEmpty) {
+        for (String meetId in meetIds) {
+          await _firestore
+              .collection('gangs')
+              .doc(gangId)
+              .collection('meets')
+              .doc(meetId)
+              .update({
+            'membersAreComming': FieldValue.arrayUnion(
+              [
+                EventMember(
+                  uid: user.uid,
+                  name: user.fullName,
+                  isComming: ConfirmationType.HasntConfirmed,
+                  car: null,
+                  carRequests: [],
+                  carRide: null,
+                ).toJson(),
+              ],
+            ),
+          });
+        }
       }
       retVal = 'success';
     } catch (e) {
@@ -123,7 +127,7 @@ class AppDB {
       _gang.leader = _doc.data()['leader'];
       _gang.createdAt = _doc.data()['createdAt'];
       _gang.members = members;
-      _gang.meetId = _doc.data()['meetId'];
+      _gang.meetIds = List<String>.from(_doc.data()['meetIds']) ?? [];
     } catch (e) {
       print(e);
       return null;
@@ -208,10 +212,9 @@ class AppDB {
         'createdAt': Timestamp.now(),
       });
 
-      await _firestore
-          .collection('gangs')
-          .doc(user.gangId)
-          .update({'meetId': _docRef.id});
+      await _firestore.collection('gangs').doc(user.gangId).update({
+        'meetIds': FieldValue.arrayUnion([_docRef.id])
+      });
 
       retVal = 'success';
     } catch (e) {

@@ -13,11 +13,12 @@ class UserArrivalControlButtons extends StatelessWidget {
       BuildContext context, ConfirmationType isCommig) async {
     final _currentUser = Provider.of<CurrentUser>(context, listen: false);
     final _currentGang = Provider.of<CurrentGang>(context, listen: false);
+    final _meet = Provider.of<Meet>(context, listen: false);
 
     final result = await AppDB().meetAcception(
       isComming: isCommig,
       user: _currentUser.user,
-      meet: _currentGang.meet,
+      meet: _meet,
     );
     if (result == 'success') {
       _currentGang.updateStateFromDB(_currentGang.gang.id);
@@ -28,9 +29,9 @@ class UserArrivalControlButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     final _currentUser = Provider.of<CurrentUser>(context, listen: false);
     final _currentGang = Provider.of<CurrentGang>(context, listen: false);
+    final _meet = Provider.of<Meet>(context, listen: false);
 
-    final userIsComming =
-        _currentGang.meet.userAreComming(_currentUser.user.uid);
+    final userIsComming = _meet.userAreComming(_currentUser.user.uid);
 
     return userIsComming != ConfirmationType.HasntConfirmed
         ? buildUserConfirmedArrival(context)
@@ -132,26 +133,40 @@ class UserArrivalControlButtons extends StatelessWidget {
   Widget buildUserConfirmedArrival(BuildContext context) {
     final _currentGang = Provider.of<CurrentGang>(context, listen: false);
     final _currentUser = Provider.of<CurrentUser>(context, listen: false);
+    final _meet = Provider.of<Meet>(context, listen: false);
+
     final EventMember eventMember =
-        _currentGang.eventMemberById(_currentUser.user.uid);
+        _currentGang.eventMemberById(_currentUser.user.uid, _meet.id);
 
     return Row(
       children: [
         OutlinedButton(
             child: Icon(
-              Icons.directions_car_outlined,
-              color: eventMember.car == null ? Colors.red : Colors.green,
+              eventMember.carRide != null
+                  ? Icons.hail
+                  : Icons.directions_car_outlined,
+              color: eventMember.carRide != null
+                  ? Colors.green
+                  : eventMember.car == null
+                      ? Colors.red
+                      : Colors.green,
             ),
             onPressed: () {
-              if (eventMember.car == null) {
-                addCar(context, _currentUser.user, _currentGang.meet).then(
+              if (eventMember.carRide != null) {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (ctx) =>
+                      CarOwnerControllers(_currentGang, _meet, isDriver: false),
+                );
+              } else if (eventMember.car == null) {
+                addCar(context, _currentUser.user, _meet).then(
                   (value) =>
                       _currentGang.updateStateFromDB(_currentUser.user.gangId),
                 );
               } else {
                 showModalBottomSheet(
                   context: context,
-                  builder: (ctx) => CarOwnerControllers(_currentGang),
+                  builder: (ctx) => CarOwnerControllers(_currentGang, _meet),
                 );
               }
             }),

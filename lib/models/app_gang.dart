@@ -7,7 +7,7 @@ class AppGang {
   String leader;
   List<GangMember> members;
   Timestamp createdAt;
-  String meetId;
+  List<String> meetIds;
 
   AppGang({
     this.id,
@@ -15,6 +15,6 @@ class AppGang {
     this.leader,
     this.members,
     this.createdAt,
-    this.meetId,
+    this.meetIds,
   });
 }

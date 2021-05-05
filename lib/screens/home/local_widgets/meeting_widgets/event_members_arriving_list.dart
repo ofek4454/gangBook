@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gangbook/models/event_member.dart';
+import 'package:gangbook/models/meet.dart';
 import 'package:gangbook/services/database.dart';
 import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
@@ -8,7 +9,8 @@ import 'package:provider/provider.dart';
 
 class EvetMembersArrivingList extends StatelessWidget {
   final CurrentGang currentGang;
-  EvetMembersArrivingList(this.currentGang);
+  final Meet meet;
+  EvetMembersArrivingList(this.currentGang, this.meet);
 
   Widget _buildNameRow(EventMember member, Color textColor,
       [BuildContext context]) {
@@ -78,7 +80,9 @@ class EvetMembersArrivingList extends StatelessWidget {
               );
               return;
             }
-            if (currentGang.eventMemberById(currentUser.user.uid).carRide !=
+            if (currentGang
+                    .eventMemberById(currentUser.user.uid, meet.id)
+                    .carRide !=
                 null) {
               Fluttertoast.showToast(
                 msg: "You are placed in another car!",
@@ -92,7 +96,7 @@ class EvetMembersArrivingList extends StatelessWidget {
               return;
             }
             if (currentGang
-                .eventMemberById(currentUser.user.uid)
+                .eventMemberById(currentUser.user.uid, meet.id)
                 .carRequests
                 .contains(car.ownerId)) {
               Fluttertoast.showToast(
@@ -106,32 +110,59 @@ class EvetMembersArrivingList extends StatelessWidget {
               );
               return;
             }
-            AppDB()
-                .joinToCar(
-              user: currentUser.user,
-              meet: currentGang.meet,
-              car: car,
-            )
-                .then((value) {
-              Fluttertoast.showToast(
-                msg: "request sent successfully!",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-            }).onError((error, stackTrace) {
-              Fluttertoast.showToast(
-                msg: "something went wrong, pleaes try again.",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
+            showDialog<String>(
+                context: context,
+                builder: (ctx) {
+                  final textController = TextEditingController();
+                  return AlertDialog(
+                    title: Text('where are you need to be picked?'),
+                    content: TextField(
+                      controller: textController,
+                    ),
+                    actions: [
+                      FlatButton(
+                          onPressed: () {
+                            Navigator.of(ctx).pop(textController.text);
+                          },
+                          child: Text('OK')),
+                      FlatButton(
+                          onPressed: () {
+                            Navigator.of(ctx).pop(null);
+                          },
+                          child: Text('Cancel')),
+                    ],
+                  );
+                }).then((value) {
+              if (value != null) {
+                AppDB()
+                    .joinToCar(
+                  user: currentUser.user,
+                  meet: meet,
+                  car: car,
+                  pickUpFrom: value,
+                )
+                    .then((value) {
+                  Fluttertoast.showToast(
+                    msg: "request sent successfully!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                }).onError((error, stackTrace) {
+                  Fluttertoast.showToast(
+                    msg: "something went wrong, pleaes try again.",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                });
+              }
             });
           }
         },
@@ -149,7 +180,7 @@ class EvetMembersArrivingList extends StatelessWidget {
     final List<EventMember> notArriving = [];
     final List<EventMember> hasntConfirmed = [];
 
-    currentGang.meet.membersAreComming.forEach((em) {
+    meet.membersAreComming.forEach((em) {
       switch (em.isComming) {
         case ConfirmationType.Arrive:
           arriving.add(em);

@@ -6,16 +6,21 @@ import 'package:gangbook/services/database.dart';
 
 class CurrentGang extends ChangeNotifier {
   AppGang _gang = AppGang();
-  Meet _meet;
+  List<Meet> _meets = [];
 
   AppGang get gang => _gang;
-  Meet get meet => _meet;
+  Meet getMeetById(String meetId) {
+    return _meets.firstWhere((meet) => meet.id == meetId);
+  }
 
   Future<void> updateStateFromDB(String gangId) async {
     try {
       _gang = await AppDB().getGangInfoById(gangId);
-      if (_gang.meetId != null) {
-        _meet = await AppDB().getMeetById(gangId, _gang.meetId);
+      if (_gang.meetIds != null && _gang.meetIds.isNotEmpty) {
+        for (String meetId in _gang.meetIds) {
+          final meet = await AppDB().getMeetById(gangId, meetId);
+          _meets.add(meet);
+        }
       }
       notifyListeners();
     } catch (e) {
@@ -23,9 +28,10 @@ class CurrentGang extends ChangeNotifier {
     }
   }
 
-  EventMember eventMemberById(String uid) {
+  EventMember eventMemberById(String uid, String meetId) {
+    final meet = getMeetById(meetId);
     final EventMember eventMember =
-        _meet.membersAreComming.firstWhere((member) => member.uid == uid);
+        meet.membersAreComming.firstWhere((member) => member.uid == uid);
     return eventMember;
   }
 }

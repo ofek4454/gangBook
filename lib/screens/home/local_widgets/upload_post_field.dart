@@ -77,7 +77,6 @@ class _UploadPostFieldState extends State<UploadPostField> {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      margin: EdgeInsets.symmetric(horizontal: 5),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.all(10),
