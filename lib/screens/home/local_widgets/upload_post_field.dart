@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gangbook/services/database.dart';
+import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +20,7 @@ class UploadPostField extends StatefulWidget {
 
 class _UploadPostFieldState extends State<UploadPostField> {
   final textController = TextEditingController();
+  bool isLoading = false;
 
   List<File> images = [];
 
@@ -65,6 +69,41 @@ class _UploadPostFieldState extends State<UploadPostField> {
     }
     setState(() {
       images.add(File(pickedImage.path));
+    });
+  }
+
+  Future<void> _post() async {
+    if (textController.text.isEmpty && images.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Nothing to post'),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      );
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    final user = Provider.of<CurrentUser>(context, listen: false).user;
+    final currentGang = Provider.of<CurrentGang>(context, listen: false);
+
+    try {
+      final post = await AppDB().uploadPost(
+        user.gangId,
+        user.fullName,
+        user.uid,
+        textController.text,
+        images,
+      );
+      currentGang.addPost(post);
+      textController.clear();
+      images = [];
+    } catch (e) {
+      print(e);
+    }
+    setState(() {
+      isLoading = false;
     });
   }
 
@@ -148,41 +187,6 @@ class _UploadPostFieldState extends State<UploadPostField> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                DropdownButton(
-                  onChanged: (PostType val) {
-                    setState(() {
-                      postType = val;
-                    });
-                  },
-                  value: postType,
-                  items: [
-                    DropdownMenuItem(
-                      value: PostType.Public,
-                      child: Row(
-                        children: [
-                          Text('Public'),
-                          Icon(Icons.public),
-                        ],
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: PostType.Privete,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Private',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          Icon(
-                            Icons.lock_outline,
-                            color: Colors.grey,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
                 FlatButton.icon(
                   minWidth: 0,
                   icon: Icon(Icons.photo_library),
@@ -190,26 +194,28 @@ class _UploadPostFieldState extends State<UploadPostField> {
                   onPressed: () => addImage(context),
                   textColor: Theme.of(context).secondaryHeaderColor,
                 ),
-                FlatButton(
-                  minWidth: 0,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Post',
-                        style: TextStyle(
-                            color: Theme.of(context).primaryColorDark),
+                isLoading
+                    ? CircularProgressIndicator.adaptive()
+                    : FlatButton(
+                        minWidth: 0,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Post',
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColorDark),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: Theme.of(context).primaryColorDark,
+                            ),
+                          ],
+                        ),
+                        onPressed: () => _post(),
+                        splashColor:
+                            Theme.of(context).primaryColorDark.withOpacity(0.3),
                       ),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: Theme.of(context).primaryColorDark,
-                      ),
-                    ],
-                  ),
-                  onPressed: () => () {}, //_post(context),
-                  splashColor:
-                      Theme.of(context).primaryColorDark.withOpacity(0.3),
-                ),
               ],
             ),
           ],

@@ -1,15 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/app_gang.dart';
 import 'package:gangbook/models/app_user.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/gang_member.dart';
 import 'package:gangbook/models/meet.dart';
+import 'package:gangbook/models/post.dart';
 
 class AppDB {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
   Future<String> createUser(AppUser user) async {
     String retVal = 'error';
@@ -128,6 +132,7 @@ class AppDB {
       _gang.createdAt = _doc.data()['createdAt'];
       _gang.members = members;
       _gang.meetIds = List<String>.from(_doc.data()['meetIds']) ?? [];
+      _gang.posts = await loadPosts(gangId);
     } catch (e) {
       print(e);
       return null;
@@ -459,5 +464,88 @@ class AppDB {
       print(e);
     }
     return retVal;
+  }
+
+  Future<Post> uploadPost(String gangId, String authorName, String authorId,
+      String content, List<File> images) async {
+    Post retVal = null;
+    List<String> _imagesUrls = [];
+
+    try {
+      final now = Timestamp.now();
+      final docRef = await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .add({
+        'authorName': authorName,
+        'authorId': authorId,
+        'content': content,
+        'images': [],
+        'createdAt': now,
+        'comments': [],
+        'likes': [],
+      });
+
+      for (int i = 0; i < images.length; i++) {
+        //TODO upload images
+        final imageLocation = _firebaseStorage
+            .ref('gangs')
+            .child(gangId)
+            .child('posts')
+            .child(docRef.id)
+            .child('$i');
+        await imageLocation.putFile(images[i]);
+        _imagesUrls.add(await imageLocation.getDownloadURL());
+      }
+
+      await docRef.update({'images': _imagesUrls});
+
+      retVal = Post(
+        authorId: authorId,
+        authorName: authorName,
+        comments: [],
+        content: content,
+        createdAt: now,
+        id: docRef.id,
+        images: _imagesUrls,
+        likes: [],
+      );
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<List<Post>> loadPosts(String gangId) async {
+    List<Post> posts = [];
+
+    try {
+      final postsCollection = await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .get();
+
+      for (final docRef in postsCollection.docs) {
+        posts.add(
+          Post(
+            id: docRef.id,
+            authorId: docRef.data()['authorId'],
+            authorName: docRef.data()['authorName'],
+            comments: [],
+            content: docRef.data()['content'],
+            createdAt: docRef.data()['createdAt'],
+            images: List<String>.from(docRef.data()['images']),
+            likes: [],
+          ),
+        );
+      }
+      posts.sort(
+          (a, b) => -a.createdAt.toDate().compareTo(b.createdAt.toDate()));
+    } catch (e) {
+      print(e);
+    }
+    return posts;
   }
 }

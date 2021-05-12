@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/models/app_gang.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/meet.dart';
+import 'package:gangbook/models/post.dart';
 import 'package:gangbook/services/database.dart';
 
 class CurrentGang extends ChangeNotifier {
@@ -26,6 +27,11 @@ class CurrentGang extends ChangeNotifier {
     } catch (e) {
       print(e);
     }
+  }
+
+  void addPost(Post post) {
+    _gang.posts.insert(0, post);
+    notifyListeners();
   }
 
   EventMember eventMemberById(String uid, String meetId) {

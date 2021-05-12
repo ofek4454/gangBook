@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/post.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
 
 class PostItem extends StatelessWidget {
-  final Map<String, String> data;
+  final Post post;
 
-  PostItem(this.data);
+  PostItem(this.post);
 
   String nameInitials(String fullName) {
     final splittedName = fullName.split(' ');
@@ -29,24 +30,16 @@ class PostItem extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: fieldHeight * 0.3,
-                    child: Text(nameInitials(data['author']).toUpperCase()),
+                    child: Text(nameInitials(post.authorName).toUpperCase()),
                   ),
                   SizedBox(width: 10),
                   Text(
-                    data['title'],
+                    post.authorName,
                     style: Theme.of(context).textTheme.subtitle1,
-                  ),
-                  SizedBox(width: 5),
-                  Icon(
-                    data['type'] == 'private'
-                        ? Icons.lock_outline
-                        : Icons.public,
-                    color: data['type'] == 'private' ? Colors.grey : null,
                   ),
                   Spacer(),
                   Text(
-                    DateFormat('HH:mm dd/MM')
-                        .format(DateTime.parse(data['date'])),
+                    DateFormat('HH:mm dd/MM').format(post.createdAt.toDate()),
                   ),
                   /*PopupMenuButton(
                     onSelected: (MenuItem value) {
@@ -81,32 +74,36 @@ class PostItem extends StatelessWidget {
                 ],
               ),
               Text(
-                data['content'],
+                post.content,
                 style: Theme.of(context).textTheme.headline6,
               ),
               SizedBox(height: 10),
-              if (data['image'] != null)
+              if (post.images.isNotEmpty)
                 ClipRRect(
                   borderRadius:
                       BorderRadius.vertical(bottom: Radius.circular(4)),
                   child: Container(
                     height: screenSize.width * 0.45,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: Image.network(
-                          data['image'],
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress != null) {
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            return child;
-                          },
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: post.images.length,
+                      itemBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: AspectRatio(
+                          aspectRatio: 1 / 1,
+                          child: Image.network(
+                            post.images[index],
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress != null) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              return child;
+                            },
+                          ),
                         ),
                       ),
                     ),
