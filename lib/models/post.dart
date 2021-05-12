@@ -8,6 +8,7 @@ class Post {
   List<PostComment> comments;
   List<PostLike> likes;
   List<String> images;
+  List<String> videos;
   Timestamp createdAt;
 
   Post({
@@ -19,6 +20,7 @@ class Post {
     this.images,
     this.likes,
     this.createdAt,
+    this.videos,
   });
 }
 

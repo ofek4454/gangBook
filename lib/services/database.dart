@@ -467,9 +467,10 @@ class AppDB {
   }
 
   Future<Post> uploadPost(String gangId, String authorName, String authorId,
-      String content, List<File> images) async {
+      String content, List<File> images, List<File> videos) async {
     Post retVal = null;
     List<String> _imagesUrls = [];
+    List<String> _videosUrls = [];
 
     try {
       final now = Timestamp.now();
@@ -482,13 +483,13 @@ class AppDB {
         'authorId': authorId,
         'content': content,
         'images': [],
+        'videos': [],
         'createdAt': now,
         'comments': [],
         'likes': [],
       });
 
       for (int i = 0; i < images.length; i++) {
-        //TODO upload images
         final imageLocation = _firebaseStorage
             .ref('gangs')
             .child(gangId)
@@ -499,7 +500,21 @@ class AppDB {
         _imagesUrls.add(await imageLocation.getDownloadURL());
       }
 
-      await docRef.update({'images': _imagesUrls});
+      for (int i = images.length; i < (images.length + videos.length); i++) {
+        final videoLocation = _firebaseStorage
+            .ref('gangs')
+            .child(gangId)
+            .child('posts')
+            .child(docRef.id)
+            .child('$i');
+        await videoLocation.putFile(videos[i - images.length]);
+        _videosUrls.add(await videoLocation.getDownloadURL());
+      }
+
+      await docRef.update({
+        'images': _imagesUrls,
+        'videos': _videosUrls,
+      });
 
       retVal = Post(
         authorId: authorId,
@@ -509,6 +524,7 @@ class AppDB {
         createdAt: now,
         id: docRef.id,
         images: _imagesUrls,
+        videos: _videosUrls,
         likes: [],
       );
     } catch (e) {
@@ -517,7 +533,7 @@ class AppDB {
     return retVal;
   }
 
-  Future<List<Post>> loadPosts(String gangId) async {
+  Future<List<Post>> loadPosts(String gangId, [String lastPostId]) async {
     List<Post> posts = [];
 
     try {
@@ -525,10 +541,12 @@ class AppDB {
           .collection('gangs')
           .doc(gangId)
           .collection('posts')
+          .orderBy('createdAt')
           .get();
 
       for (final docRef in postsCollection.docs) {
-        posts.add(
+        posts.insert(
+          0,
           Post(
             id: docRef.id,
             authorId: docRef.data()['authorId'],
@@ -537,12 +555,12 @@ class AppDB {
             content: docRef.data()['content'],
             createdAt: docRef.data()['createdAt'],
             images: List<String>.from(docRef.data()['images']),
+            videos: List<String>.from(docRef.data()['videos']),
             likes: [],
           ),
         );
       }
-      posts.sort(
-          (a, b) => -a.createdAt.toDate().compareTo(b.createdAt.toDate()));
+      //posts.sort((a, b) => -a.createdAt.toDate().compareTo(b.createdAt.toDate()));
     } catch (e) {
       print(e);
     }

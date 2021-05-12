@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/models/post.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
+import 'package:video_player/video_player.dart';
 
 class PostItem extends StatelessWidget {
   final Post post;
@@ -78,41 +79,111 @@ class PostItem extends StatelessWidget {
                 style: Theme.of(context).textTheme.headline6,
               ),
               SizedBox(height: 10),
-              if (post.images.isNotEmpty)
+              if (post.images.isNotEmpty || post.videos.isNotEmpty)
                 ClipRRect(
                   borderRadius:
                       BorderRadius.vertical(bottom: Radius.circular(4)),
                   child: Container(
-                    height: screenSize.width * 0.45,
+                    width: double.infinity,
+                    height: screenSize.width - 100,
                     child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: post.images.length,
-                      itemBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: AspectRatio(
-                          aspectRatio: 1 / 1,
-                          child: Image.network(
-                            post.images[index],
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress != null) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              return child;
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: post.images.length + post.videos.length,
+                        itemBuilder: (context, index) {
+                          return Stack(
+                            alignment: Alignment.bottomLeft,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 1 / 1,
+                                child: index < post.videos.length
+                                    ? PostVideoPlayer(url: post.videos[index])
+                                    : Image.network(
+                                        post.images[index - post.videos.length],
+                                        fit: BoxFit.cover,
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress != null) {
+                                            return Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          }
+                                          return child;
+                                        },
+                                      ),
+                              ),
+                              if (post.images.length + post.videos.length > 1)
+                                Container(
+                                  margin: EdgeInsets.only(left: 10, bottom: 10),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.white60,
+                                  ),
+                                  child: Text(
+                                      '${index + 1}/${post.images.length + post.videos.length}'),
+                                )
+                            ],
+                          );
+                        }),
                   ),
                 ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class PostVideoPlayer extends StatefulWidget {
+  const PostVideoPlayer({
+    Key key,
+    @required this.url,
+  }) : super(key: key);
+
+  final String url;
+
+  @override
+  _PostVideoPlayerState createState() => _PostVideoPlayerState();
+}
+
+class _PostVideoPlayerState extends State<PostVideoPlayer> {
+  VideoPlayerController controller;
+
+  @override
+  void initState() {
+    controller = VideoPlayerController.network(widget.url)
+      ..initialize().then((value) {
+        setState(() {
+          controller.setLooping(true);
+          controller.setVolume(0);
+          controller.play();
+        });
+      });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (controller.value.volume == 0)
+          controller.setVolume(1);
+        else
+          controller.setVolume(0);
+      },
+      child: VideoPlayer(controller),
     );
   }
 }
