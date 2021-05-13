@@ -22,107 +22,114 @@ class ThereIsMeet extends StatelessWidget {
     return WhiteRoundedCard(
       child: Container(
         alignment: Alignment.center,
-        child: SingleChildScrollView(
-          child: Stack(
-            alignment: Alignment.center,
-            clipBehavior: Clip.none,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _meet.title ?? 'loading...',
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    _meet.location ?? 'loading...',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).secondaryHeaderColor,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    _meet.moreInfo ?? 'loading...',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).secondaryHeaderColor,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Due in: ',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Theme.of(context).secondaryHeaderColor,
-                        ),
+        child: Scrollbar(
+          //controller: ScrollController(),
+          //showTrackOnHover: true,
+          radius: Radius.circular(30),
+          //isAlwaysShown: true,
+          thickness: 6,
+          child: SingleChildScrollView(
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _meet.title ?? 'loading...',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.black,
                       ),
-                      Text(
-                        DateFormat('dd/MM/yy HH:mm')
-                                .format(_meet.meetingAt?.toDate()) ??
-                            'loading...',
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      _meet.location ?? 'loading...',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Theme.of(context).secondaryHeaderColor,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  MeetingTimer(_meet.meetingAt.toDate()),
-                  SizedBox(height: 10),
-                  UserArrivalControlButtons(),
-                  SizedBox(height: 10),
-                  if (_currentGang
-                          .eventMemberById(_currentUser.user.uid, _meet.id)
-                          .car !=
-                      null) ...[
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      _meet.moreInfo ?? 'loading...',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Theme.of(context).secondaryHeaderColor,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Due in: ',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context).secondaryHeaderColor,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('dd/MM/yy HH:mm')
+                                  .format(_meet.meetingAt?.toDate()) ??
+                              'loading...',
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    MeetingTimer(_meet.meetingAt.toDate()),
+                    SizedBox(height: 10),
+                    UserArrivalControlButtons(),
+                    SizedBox(height: 10),
                     if (_currentGang
-                        .eventMemberById(_currentUser.user.uid, _meet.id)
-                        .car
-                        .requests
-                        .isNotEmpty)
-                      Text(
-                        'Car join requests',
-                        style: Theme.of(context).textTheme.headline6,
+                            .eventMemberById(_currentUser.user.uid, _meet.id)
+                            .car !=
+                        null) ...[
+                      if (_currentGang
+                          .eventMemberById(_currentUser.user.uid, _meet.id)
+                          .car
+                          .requests
+                          .isNotEmpty)
+                        Text(
+                          'Car join requests',
+                          style: Theme.of(context).textTheme.headline6,
+                        ),
+                      ..._buildApproveRiders(
+                        _currentGang.eventMemberById(
+                            _currentUser.user.uid, _meet.id),
+                        _currentGang,
+                        _meet,
                       ),
-                    ..._buildApproveRiders(
-                      _currentGang.eventMemberById(
-                          _currentUser.user.uid, _meet.id),
-                      _currentGang,
-                      _meet,
-                    ),
-                  ]
-                ],
-              ),
-              Positioned(
-                left: -10,
-                top: -10,
-                child: ClipOval(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (_) =>
-                              EvetMembersArrivingList(_currentGang, _meet),
-                        );
-                      },
-                      icon: Icon(Icons.people_alt_outlined),
+                    ]
+                  ],
+                ),
+                Positioned(
+                  left: -10,
+                  top: -10,
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (_) =>
+                                EvetMembersArrivingList(_currentGang, _meet),
+                          );
+                        },
+                        icon: Icon(Icons.people_alt_outlined),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/services/database.dart';
 import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/utils/names_initials.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -27,11 +28,6 @@ class _UploadPostFieldState extends State<UploadPostField> {
   List<File> videos = [];
 
   PostType postType = PostType.Public;
-
-  String nameInitials(String fullName) {
-    final splittedName = fullName.split(' ');
-    return splittedName[0][0] + splittedName[1][0];
-  }
 
   Future<void> addImage() async {
     final picker = ImagePicker();
@@ -198,7 +194,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
               children: [
                 CircleAvatar(
                   radius: fieldHeight * 0.25,
-                  child: Text(nameInitials(user.fullName).toUpperCase()),
+                  child: Text(NameInitials().getInitials(user.fullName)),
                 ),
                 SizedBox(width: 10),
                 Expanded(

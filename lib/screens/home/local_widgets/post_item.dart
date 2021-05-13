@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/post.dart';
+import 'package:gangbook/utils/names_initials.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
 import 'package:video_player/video_player.dart';
@@ -8,11 +9,6 @@ class PostItem extends StatelessWidget {
   final Post post;
 
   PostItem(this.post);
-
-  String nameInitials(String fullName) {
-    final splittedName = fullName.split(' ');
-    return splittedName[0][0] + splittedName[1][0];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +27,7 @@ class PostItem extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: fieldHeight * 0.3,
-                    child: Text(nameInitials(post.authorName).toUpperCase()),
+                    child: Text(NameInitials().getInitials(post.authorName)),
                   ),
                   SizedBox(width: 10),
                   Text(
@@ -170,20 +166,25 @@ class _PostVideoPlayerState extends State<PostVideoPlayer> {
 
   @override
   void dispose() {
-    controller.dispose();
+    setState(() {
+      controller.pause();
+      controller.dispose();
+    });
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        if (controller.value.volume == 0)
-          controller.setVolume(1);
-        else
-          controller.setVolume(0);
-      },
-      child: VideoPlayer(controller),
-    );
+        onTap: () {
+          if (controller.value.volume == 0)
+            controller.setVolume(1);
+          else
+            controller.setVolume(0);
+        },
+        child: controller.value.isInitialized
+            ? VideoPlayer(controller)
+            : Center(child: CircularProgressIndicator.adaptive()));
   }
 }

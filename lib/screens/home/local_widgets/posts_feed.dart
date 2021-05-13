@@ -12,6 +12,7 @@ class PostsFeed extends StatelessWidget {
         : ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
+            addAutomaticKeepAlives: false,
             itemCount: posts.length,
             itemBuilder: (ctx, i) => PostItem(posts[i]),
           );

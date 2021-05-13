@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/screens/drawer/app_drawer.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/login/login_screen.dart';
 import 'package:gangbook/screens/no_group/no_group_screen.dart';
@@ -51,7 +52,7 @@ class _RootScreenState extends State<RootScreen> {
       case AuthStatus.InGroup:
         return ChangeNotifierProvider(
           create: (ctx) => CurrentGang(),
-          child: HomeScreen(),
+          child: AppDrawer(), //HomeScreen(),
         );
         break;
       case AuthStatus.NotInGroup:
