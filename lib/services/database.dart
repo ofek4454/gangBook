@@ -254,16 +254,9 @@ class AppDB {
     return retVal;
   }
 
-  Future<String> addCar({int places, AppUser user, Meet meet}) async {
+  Future<String> addCar({String gangId, Meet meet}) async {
     String retVal = 'error';
-    meet.membersAreComming
-        .firstWhere((eventMember) => eventMember.uid == user.uid)
-        .car = Car(
-      ownerId: user.uid,
-      riders: [],
-      places: places,
-      requests: [],
-    );
+
     final List<String> membersAreCommingJson = [];
     meet.membersAreComming.forEach((eventMember) {
       membersAreCommingJson.add(eventMember.toJson());
@@ -271,7 +264,7 @@ class AppDB {
     try {
       await _firestore
           .collection('gangs')
-          .doc(user.gangId)
+          .doc(gangId)
           .collection('meets')
           .doc(meet.id)
           .update({
@@ -326,45 +319,9 @@ class AppDB {
 
   Future<String> confirmRideRequest({
     String gangId,
-    String riderUid,
     Meet meet,
-    Car car,
-    String pickUpFrom,
   }) async {
     String retVal = 'error';
-
-    final requstList = meet.membersAreComming
-        .firstWhere((eventMember) => eventMember.uid == car.ownerId)
-        .car
-        .requests;
-
-    final ridersList = meet.membersAreComming
-        .firstWhere((eventMember) => eventMember.uid == car.ownerId)
-        .car
-        .riders;
-
-    final index = requstList.indexWhere((rider) => rider.uid == riderUid);
-
-    final rider = requstList.elementAt(index);
-
-    requstList.removeAt(index);
-
-    ridersList.add(rider);
-
-    final riderEventMember = meet.membersAreComming
-        .firstWhere((eventMember) => eventMember.uid == riderUid);
-
-    riderEventMember.carRequests.remove(car.ownerId);
-    riderEventMember.carRequests?.forEach((carOwnerId) {
-      meet.membersAreComming
-          .firstWhere((eventMember) => eventMember.uid == carOwnerId)
-          .car
-          .requests
-          .removeWhere((carRider) => carRider.uid == riderEventMember.uid);
-    });
-
-    riderEventMember.carRequests.clear();
-    riderEventMember.carRide = car.ownerId;
 
     final List<String> membersAreCommingJson = [];
     meet.membersAreComming.forEach((eventMember) {
@@ -386,13 +343,13 @@ class AppDB {
     return retVal;
   }
 
-  Future<String> removeCarRider({
+  Future<List<CarRider>> removeCarRider({
     String gangId,
     String riderUid,
     Meet meet,
     Car car,
   }) async {
-    String retVal = 'error';
+    List<CarRider> retVal = null;
 
     final ridersList = car.riders;
 
@@ -416,11 +373,11 @@ class AppDB {
           .update({
         'membersAreComming': membersAreCommingJson,
       });
-      retVal = 'success';
+      retVal = ridersList;
     } catch (e) {
       print(e);
     }
-    return retVal;
+    return ridersList;
   }
 
   Future<String> removeCar({
@@ -545,25 +502,93 @@ class AppDB {
           .get();
 
       for (final docRef in postsCollection.docs) {
+        final List<PostLike> likes = [];
+        final List<String> likesData =
+            List<String>.from(docRef.data()['likes']);
+        for (String likeData in likesData) {
+          likes.add(PostLike.fromJson(likeData));
+        }
+
+        final List<PostComment> comments = [];
+        final List<String> commentsData =
+            List<String>.from(docRef.data()['comments']);
+        for (String commentData in commentsData) {
+          comments.add(PostComment.fromJson(commentData));
+        }
+
         posts.insert(
           0,
           Post(
             id: docRef.id,
             authorId: docRef.data()['authorId'],
             authorName: docRef.data()['authorName'],
-            comments: [],
+            comments: comments,
             content: docRef.data()['content'],
             createdAt: docRef.data()['createdAt'],
             images: List<String>.from(docRef.data()['images']),
             videos: List<String>.from(docRef.data()['videos']),
-            likes: [],
+            likes: likes,
           ),
         );
       }
-      //posts.sort((a, b) => -a.createdAt.toDate().compareTo(b.createdAt.toDate()));
     } catch (e) {
       print(e);
     }
     return posts;
+  }
+
+  Future<String> likePost(String gangId, String postId, PostLike like) async {
+    String retVal = 'error';
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .doc(postId)
+          .update({
+        'likes': FieldValue.arrayUnion([like.toJson()]),
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> commentOnPost(
+      String gangId, String postId, PostComment comment) async {
+    String retVal = 'error';
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .doc(postId)
+          .update({
+        'comments': FieldValue.arrayUnion([comment.toJson()]),
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> unLikePost(String gangId, String postId, PostLike like) async {
+    String retVal = 'error';
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .doc(postId)
+          .update({
+        'likes': FieldValue.arrayRemove([like.toJson()]),
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gangbook/screens/home/local_widgets/post_item.dart';
+import 'package:gangbook/screens/home/local_widgets/posts_widgets/post_item.dart';
 import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:provider/provider.dart';
 

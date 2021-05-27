@@ -144,17 +144,13 @@ class ThereIsMeet extends StatelessWidget {
             title: Text(rider.name),
             subtitle: Text(rider.pickupFrom ?? ''),
             trailing: OutlinedButton(
-                onPressed: () {
-                  AppDB()
-                      .confirmRideRequest(
-                        car: eventMember.car,
-                        gangId: currentGang.gang.id,
-                        meet: meet,
-                        pickUpFrom: '',
-                        riderUid: rider.uid,
-                      )
-                      .then((value) =>
-                          currentGang.updateStateFromDB(currentGang.gang.id));
+                onPressed: () async {
+                  await currentGang.confirmCarRideRequest(
+                    rider.uid,
+                    meet,
+                    eventMember.car,
+                    rider.pickupFrom ?? '',
+                  );
                 },
                 child: Text(
                   'add',

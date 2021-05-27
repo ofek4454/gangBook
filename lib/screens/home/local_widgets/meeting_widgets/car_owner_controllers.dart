@@ -70,16 +70,16 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
                                   MaterialStateProperty.all<Color>(Colors.red),
                             ),
                             onPressed: () async {
-                              await AppDB().removeCarRider(
+                              final riderList = await AppDB().removeCarRider(
                                 car: car,
                                 gangId: widget.currentGang.gang.id,
                                 meet: widget.meet,
                                 riderUid: rider.uid,
                               );
 
-                              await widget.currentGang.updateStateFromDB(
-                                  widget.currentGang.gang.id);
-                              setState(() {});
+                              setState(() {
+                                car.riders = riderList;
+                              });
                             },
                             child: Text(
                               'remove',
@@ -97,14 +97,46 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
                   foregroundColor: MaterialStateProperty.all<Color>(Colors.red),
                 ),
                 onPressed: () async {
-                  await AppDB().removeCar(
+                  final desideToRemoveCar = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text('Are you sure?'),
+                      content: Text('This action cannot be undone'),
+                      actions: [
+                        FlatButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(true);
+                          },
+                          child: Text('remove car'),
+                          textColor: Colors.red,
+                        ),
+                        FlatButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false);
+                          },
+                          child: Text('cancel'),
+                          textColor: Colors.black,
+                        ),
+                      ],
+                    ),
+                  );
+                  if (!desideToRemoveCar) return;
+                  final result = await AppDB().removeCar(
                     car: car,
                     gangId: widget.currentGang.gang.id,
                     meet: widget.meet,
                   );
-                  await widget.currentGang
-                      .updateStateFromDB(widget.currentGang.gang.id);
-                  Navigator.of(context).pop();
+                  if (result == 'success') {
+                    widget.currentGang.removeCar(car, widget.meet.id);
+                    Navigator.of(context).pop();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Something went wrong, please try again'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
                 child: Text(
                   'remove car',

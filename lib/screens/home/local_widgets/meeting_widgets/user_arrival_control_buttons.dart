@@ -21,7 +21,11 @@ class UserArrivalControlButtons extends StatelessWidget {
       meet: _meet,
     );
     if (result == 'success') {
-      _currentGang.updateStateFromDB(_currentGang.gang.id);
+      _currentGang.meetAcception(
+        isComming: isCommig,
+        userId: _currentUser.user.uid,
+        meetId: _meet.id,
+      );
     }
   }
 
@@ -84,7 +88,8 @@ class UserArrivalControlButtons extends StatelessWidget {
     );
   }
 
-  Future<void> addCar(BuildContext context, AppUser user, Meet meet) async {
+  Future<void> addCar(BuildContext context, AppUser user, Meet meet,
+      CurrentGang currentGang) async {
     final placesController = TextEditingController();
     await showDialog(
       context: context,
@@ -106,13 +111,14 @@ class UserArrivalControlButtons extends StatelessWidget {
                 await showDialog(
                     context: context,
                     builder: (ctx) {
-                      AppDB()
+                      currentGang
                           .addCar(
                             places: int.parse(placesController.text),
-                            user: user,
-                            meet: meet,
+                            userId: user.uid,
+                            meetId: meet.id,
                           )
-                          .then((value) => Navigator.of(ctx).pop());
+                          .then((_) => Navigator.of(ctx).pop());
+
                       return AlertDialog(
                         content: Row(
                           children: [
@@ -151,7 +157,7 @@ class UserArrivalControlButtons extends StatelessWidget {
                       ? Colors.red
                       : Colors.green,
             ),
-            onPressed: () {
+            onPressed: () async {
               if (eventMember.carRide != null) {
                 showModalBottomSheet(
                   context: context,
@@ -159,10 +165,7 @@ class UserArrivalControlButtons extends StatelessWidget {
                       CarOwnerControllers(_currentGang, _meet, isDriver: false),
                 );
               } else if (eventMember.car == null) {
-                addCar(context, _currentUser.user, _meet).then(
-                  (value) =>
-                      _currentGang.updateStateFromDB(_currentUser.user.gangId),
-                );
+                await addCar(context, _currentUser.user, _meet, _currentGang);
               } else {
                 showModalBottomSheet(
                   context: context,
