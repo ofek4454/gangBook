@@ -51,6 +51,22 @@ class CurrentGang extends ChangeNotifier {
     }
   }
 
+  void likeComment(
+      Post post, PostComment comment, String uid, String name) async {
+    final postLike = PostLike(
+      uid: uid,
+      name: name,
+      createdAt: Timestamp.now(),
+    );
+    comment.likes.add(postLike);
+    notifyListeners();
+    final res = await AppDB().likeComment(_gang.id, post.id, comment, postLike);
+    if (res == 'error') {
+      post.likes.remove(postLike);
+      notifyListeners();
+    }
+  }
+
   void commentsOnPost(
       Post post, String uid, String name, String comment) async {
     final postComment = PostComment(
@@ -73,6 +89,18 @@ class CurrentGang extends ChangeNotifier {
     post.likes.remove(likeToRemove);
     notifyListeners();
     final res = await AppDB().unLikePost(_gang.id, post.id, likeToRemove);
+    if (res == 'error') {
+      post.likes.add(likeToRemove);
+      notifyListeners();
+    }
+  }
+
+  void unLikeComment(Post post, PostComment comment, String uid) async {
+    final likeToRemove = comment.likes.firstWhere((like) => like.uid == uid);
+    comment.likes.remove(likeToRemove);
+    notifyListeners();
+    final res =
+        await AppDB().unLikeComment(_gang.id, post.id, comment, likeToRemove);
     if (res == 'error') {
       post.likes.add(likeToRemove);
       notifyListeners();

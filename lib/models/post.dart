@@ -36,30 +36,28 @@ class Post {
 }
 
 class PostComment {
+  String commetId;
   String uid;
   String name;
   String comment;
+  List<PostLike> likes;
   Timestamp createdAt;
 
-  PostComment({this.uid, this.name, this.comment, this.createdAt});
+  PostComment(
+      {this.uid,
+      this.name,
+      this.comment,
+      this.createdAt,
+      this.likes,
+      this.commetId});
 
-  factory PostComment.fromJson(String data) {
-    final _data = json.decode(data);
-    return PostComment(
-      uid: _data['uid'],
-      comment: _data['comment'],
-      name: _data['name'],
-      createdAt: Timestamp.fromDate(DateTime.parse(_data['createdAt'])),
-    );
-  }
-
-  String toJson() {
-    return json.encode({
-      'uid': this.uid,
-      'name': this.name,
-      'comment': this.comment,
-      'createdAt': this.createdAt.toDate().toIso8601String(),
-    });
+  bool doILike(String uid) {
+    bool retVal = false;
+    try {
+      this.likes.firstWhere((like) => like.uid == uid);
+      retVal = true;
+    } catch (e) {}
+    return retVal;
   }
 }
 

@@ -237,7 +237,10 @@ class PostItem extends StatelessWidget {
                       onTap: () {
                         showModalBottomSheet(
                           context: context,
-                          builder: (ctx) => CommentsFeed(post.comments),
+                          builder: (ctx) => CommentsFeed(
+                            post,
+                            Provider.of<CurrentGang>(context, listen: false),
+                          ),
                         );
                       },
                       child: Padding(

@@ -442,7 +442,6 @@ class AppDB {
         'images': [],
         'videos': [],
         'createdAt': now,
-        'comments': [],
         'likes': [],
       });
 
@@ -510,10 +509,20 @@ class AppDB {
         }
 
         final List<PostComment> comments = [];
-        final List<String> commentsData =
-            List<String>.from(docRef.data()['comments']);
-        for (String commentData in commentsData) {
-          comments.add(PostComment.fromJson(commentData));
+        final commetsCollection =
+            await docRef.reference.collection('comments').get();
+        for (final commentData in commetsCollection.docs) {
+          List<PostLike> commentLikes = [];
+          List<String> commentLikesData =
+              List<String>.from(commentData.data()['likes']);
+          comments.add(PostComment(
+            commetId: commentData.id,
+            comment: commentData.data()['comment'],
+            uid: commentData.data()['uid'],
+            likes: commentLikes,
+            name: commentData.data()['name'],
+            createdAt: commentData.data()['createdAt'],
+          ));
         }
 
         posts.insert(
@@ -559,13 +568,61 @@ class AppDB {
       String gangId, String postId, PostComment comment) async {
     String retVal = 'error';
     try {
+      final docRef = await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .doc(postId)
+          .collection('comments')
+          .add({
+        'uid': comment.uid,
+        'name': comment.name,
+        'comment': comment.comment,
+        'createdAt': comment.createdAt,
+        'likes': [],
+      });
+      comment.commetId = docRef.id;
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> likeComment(
+      String gangId, String postId, PostComment comment, PostLike like) async {
+    String retVal = 'error';
+    try {
       await _firestore
           .collection('gangs')
           .doc(gangId)
           .collection('posts')
           .doc(postId)
+          .collection('comments')
+          .doc(comment.commetId)
           .update({
-        'comments': FieldValue.arrayUnion([comment.toJson()]),
+        'likes': FieldValue.arrayUnion([like.toJson()])
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> unLikeComment(
+      String gangId, String postId, PostComment comment, PostLike like) async {
+    String retVal = 'error';
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .doc(postId)
+          .collection('comments')
+          .doc(comment.commetId)
+          .update({
+        'likes': FieldValue.arrayRemove([like.toJson()])
       });
       retVal = 'success';
     } catch (e) {
