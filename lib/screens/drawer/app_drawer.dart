@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:gangbook/screens/history/history_screen.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/root/root.dart';
 import 'package:gangbook/state_managment/current_user.dart';
@@ -36,6 +37,11 @@ class _AppDrawerState extends State<AppDrawer> {
         value = 1;
         isOpen = true;
       });
+  }
+
+  void ChangePage(Widget pageToShow) {
+    _currentPage = pageToShow;
+    openDrawer();
   }
 
   Future<void> _signout() async {
@@ -108,7 +114,12 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: ListView(
                       children: [
                         ListTile(
-                          onTap: () {},
+                          onTap: () {
+                            if (_currentPage.runtimeType is HomeScreen)
+                              openDrawer();
+                            else
+                              ChangePage(HomeScreen(openDrawer));
+                          },
                           leading: Icon(
                             Icons.home,
                             color: Colors.white,
@@ -119,7 +130,12 @@ class _AppDrawerState extends State<AppDrawer> {
                           ),
                         ),
                         ListTile(
-                          onTap: () {},
+                          onTap: () {
+                            if (_currentPage.runtimeType is HistoryScreen)
+                              openDrawer();
+                            else
+                              ChangePage(HistoryScreen(openDrawer));
+                          },
                           leading: Icon(
                             Icons.history,
                             color: Colors.white,
@@ -197,7 +213,10 @@ class _AppDrawerState extends State<AppDrawer> {
                     onTap: () => isOpen ? openDrawer() : null,
                     child: AbsorbPointer(
                       absorbing: isOpen,
-                      child: _currentPage,
+                      child: AnimatedSwitcher(
+                        duration: duration,
+                        child: _currentPage,
+                      ),
                     )),
               ),
             ),

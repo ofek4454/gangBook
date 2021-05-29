@@ -10,7 +10,9 @@ import 'package:provider/provider.dart';
 class EvetMembersArrivingList extends StatelessWidget {
   final CurrentGang currentGang;
   final Meet meet;
-  EvetMembersArrivingList(this.currentGang, this.meet);
+  final bool isChangeable;
+  EvetMembersArrivingList(
+      {this.currentGang, this.meet, this.isChangeable = true});
 
   Widget _buildNameRow(EventMember member, Color textColor,
       [BuildContext context]) {
@@ -42,118 +44,17 @@ class EvetMembersArrivingList extends StatelessWidget {
     else if (car.places - car.riders.length <= 1) color = Colors.orange;
     return Padding(
       padding: const EdgeInsets.only(left: 10),
-      child: OutlinedButton(
-        onPressed: () {
-          if (car.places - 1 == car.riders.length) {
-            // car is full
-            Fluttertoast.showToast(
-              msg: "This car is full",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-          } else {
-            if (car.ownerId == currentUser.user.uid) {
-              Fluttertoast.showToast(
-                msg: "You are the driver!",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-              return;
-            }
-            if (car.riders.contains(currentUser.user.uid)) {
-              Fluttertoast.showToast(
-                msg: "You are allredy in this car!",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-              return;
-            }
-            if (currentGang
-                    .eventMemberById(currentUser.user.uid, meet.id)
-                    .carRide !=
-                null) {
-              Fluttertoast.showToast(
-                msg: "You are placed in another car!",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-              return;
-            }
-            if (currentGang
-                .eventMemberById(currentUser.user.uid, meet.id)
-                .carRequests
-                .contains(car.ownerId)) {
-              Fluttertoast.showToast(
-                msg: "You are alredy request to join this car!",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-              return;
-            }
-            showDialog<String>(
-                context: context,
-                builder: (ctx) {
-                  final textController = TextEditingController();
-                  return AlertDialog(
-                    title: Text('where are you need to be picked?'),
-                    content: TextField(
-                      controller: textController,
-                    ),
-                    actions: [
-                      FlatButton(
-                          onPressed: () {
-                            Navigator.of(ctx).pop(textController.text);
-                          },
-                          child: Text('OK')),
-                      FlatButton(
-                          onPressed: () {
-                            Navigator.of(ctx).pop(null);
-                          },
-                          child: Text('Cancel')),
-                    ],
-                  );
-                }).then((value) {
-              if (value != null) {
-                AppDB()
-                    .joinToCar(
-                  user: currentUser.user,
-                  meet: meet,
-                  car: car,
-                  pickUpFrom: value,
-                )
-                    .then((value) {
+      child: !isChangeable
+          ? Icon(
+              Icons.directions_car_outlined,
+              color: color,
+            )
+          : OutlinedButton(
+              onPressed: () {
+                if (car.places - 1 == car.riders.length) {
+                  // car is full
                   Fluttertoast.showToast(
-                    msg: "request sent successfully!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.green,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                }).onError((error, stackTrace) {
-                  Fluttertoast.showToast(
-                    msg: "something went wrong, pleaes try again.",
+                    msg: "This car is full",
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
                     timeInSecForIosWeb: 1,
@@ -161,16 +62,122 @@ class EvetMembersArrivingList extends StatelessWidget {
                     textColor: Colors.white,
                     fontSize: 16.0,
                   );
-                });
-              }
-            });
-          }
-        },
-        child: Icon(
-          Icons.directions_car_outlined,
-          color: color,
-        ),
-      ),
+                } else {
+                  if (car.ownerId == currentUser.user.uid) {
+                    Fluttertoast.showToast(
+                      msg: "You are the driver!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                    return;
+                  }
+                  if (car.riders.contains(currentUser.user.uid)) {
+                    Fluttertoast.showToast(
+                      msg: "You are allredy in this car!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                    return;
+                  }
+                  if (currentGang
+                          .eventMemberById(currentUser.user.uid, meet.id)
+                          .carRide !=
+                      null) {
+                    Fluttertoast.showToast(
+                      msg: "You are placed in another car!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                    return;
+                  }
+                  if (currentGang
+                      .eventMemberById(currentUser.user.uid, meet.id)
+                      .carRequests
+                      .contains(car.ownerId)) {
+                    Fluttertoast.showToast(
+                      msg: "You are alredy request to join this car!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                    return;
+                  }
+                  showDialog<String>(
+                      context: context,
+                      builder: (ctx) {
+                        final textController = TextEditingController();
+                        return AlertDialog(
+                          title: Text('where are you need to be picked?'),
+                          content: TextField(
+                            controller: textController,
+                          ),
+                          actions: [
+                            FlatButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop(textController.text);
+                                },
+                                child: Text('OK')),
+                            FlatButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop(null);
+                                },
+                                child: Text('Cancel')),
+                          ],
+                        );
+                      }).then((value) {
+                    if (value != null) {
+                      AppDB()
+                          .joinToCar(
+                        user: currentUser.user,
+                        meet: meet,
+                        car: car,
+                        pickUpFrom: value,
+                      )
+                          .then((value) {
+                        Fluttertoast.showToast(
+                          msg: "request sent successfully!",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      }).onError((error, stackTrace) {
+                        Fluttertoast.showToast(
+                          msg: "something went wrong, pleaes try again.",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      });
+                    }
+                  });
+                }
+              },
+              child: Icon(
+                Icons.directions_car_outlined,
+                color: color,
+              ),
+            ),
     );
   }
 

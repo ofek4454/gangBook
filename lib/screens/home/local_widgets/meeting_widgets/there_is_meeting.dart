@@ -3,7 +3,6 @@ import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/meet.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/meeting_timer.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/user_arrival_control_buttons.dart';
-import 'package:gangbook/services/database.dart';
 import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
@@ -23,10 +22,7 @@ class ThereIsMeet extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         child: Scrollbar(
-          //controller: ScrollController(),
-          //showTrackOnHover: true,
           radius: Radius.circular(30),
-          //isAlwaysShown: true,
           thickness: 6,
           child: SingleChildScrollView(
             child: Stack(
@@ -119,8 +115,10 @@ class ThereIsMeet extends StatelessWidget {
                         onPressed: () {
                           showModalBottomSheet(
                             context: context,
-                            builder: (_) =>
-                                EvetMembersArrivingList(_currentGang, _meet),
+                            builder: (_) => EvetMembersArrivingList(
+                              currentGang: _currentGang,
+                              meet: _meet,
+                            ),
                           );
                         },
                         icon: Icon(Icons.people_alt_outlined),

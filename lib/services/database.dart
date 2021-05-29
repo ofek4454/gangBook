@@ -169,6 +169,28 @@ class AppDB {
     return _meet;
   }
 
+  Future<List<Meet>> getMeetsHistory(String gangId) async {
+    List<Meet> _meets = [];
+
+    try {
+      final meetsCollection = await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('meets')
+          .orderBy('createdAt')
+          .get();
+
+      for (final meetData in meetsCollection.docs) {
+        final meet = await getMeetById(gangId, meetData.id);
+        _meets.insert(0, meet);
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+    return _meets;
+  }
+
   Future<String> setNewMeet({
     @required String title,
     @required String location,
