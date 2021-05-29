@@ -1,9 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/app_user.dart';
 import 'package:gangbook/screens/history/history_screen.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
+import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
 import 'package:gangbook/screens/root/root.dart';
+import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:provider/provider.dart';
@@ -51,6 +54,31 @@ class _AppDrawerState extends State<AppDrawer> {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => RootScreen()), (route) => false);
     }
+  }
+
+  void _leaveGang(AppUser user) {
+    openDrawer();
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        Provider.of<CurrentGang>(context, listen: false)
+            .leaveGang(user)
+            .then((value) {
+          Navigator.of(ctx).pop();
+          Navigator.of(ctx).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => RootScreen(),
+              ),
+              (route) => false);
+        });
+        return AlertDialog(
+            content: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [CircularProgressIndicator.adaptive()],
+        ));
+      },
+    );
   }
 
   @override
@@ -157,6 +185,22 @@ class _AppDrawerState extends State<AppDrawer> {
                           ),
                         ),
                         ListTile(
+                          onTap: () {
+                            if (_currentPage.runtimeType is InviteToGangScreen)
+                              openDrawer();
+                            else
+                              ChangePage(InviteToGangScreen(openDrawer));
+                          },
+                          leading: Icon(
+                            Icons.share,
+                            color: Colors.white,
+                          ),
+                          title: Text(
+                            'Invite to gang',
+                            style: textStyle,
+                          ),
+                        ),
+                        ListTile(
                           onTap: () {},
                           leading: Icon(
                             Icons.settings,
@@ -168,7 +212,7 @@ class _AppDrawerState extends State<AppDrawer> {
                           ),
                         ),
                         ListTile(
-                          onTap: () {},
+                          onTap: () => _leaveGang(currentUser.user),
                           leading: Icon(
                             Icons.people_alt,
                             color: Colors.red,

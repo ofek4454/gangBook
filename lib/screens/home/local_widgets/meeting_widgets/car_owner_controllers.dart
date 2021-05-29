@@ -70,16 +70,11 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
                                   MaterialStateProperty.all<Color>(Colors.red),
                             ),
                             onPressed: () async {
-                              final riderList = await AppDB().removeCarRider(
-                                car: car,
-                                gangId: widget.currentGang.gang.id,
-                                meet: widget.meet,
-                                riderUid: rider.uid,
+                              await widget.currentGang.removeCarRider(
+                                widget.meet.id,
+                                car,
+                                rider.uid,
                               );
-
-                              setState(() {
-                                car.riders = riderList;
-                              });
                             },
                             child: Text(
                               'remove',
@@ -121,13 +116,9 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
                     ),
                   );
                   if (!desideToRemoveCar) return;
-                  final result = await AppDB().removeCar(
-                    car: car,
-                    gangId: widget.currentGang.gang.id,
-                    meet: widget.meet,
-                  );
+                  final result =
+                      await widget.currentGang.removeCar(car, widget.meet.id);
                   if (result == 'success') {
-                    widget.currentGang.removeCar(car, widget.meet.id);
                     Navigator.of(context).pop();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

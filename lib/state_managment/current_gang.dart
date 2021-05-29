@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/app_gang.dart';
+import 'package:gangbook/models/app_user.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/meet.dart';
 import 'package:gangbook/models/post.dart';
@@ -107,17 +108,42 @@ class CurrentGang extends ChangeNotifier {
     }
   }
 
-  void removeCar(Car car, String meetId) {
+  Future<String> removeCar(Car car, String meetId) async {
+    final meet = getMeetById(meetId);
+    car.requests.forEach((rider) {
+      meet.membersAreComming.forEach((member) {
+        if (rider.uid == member.uid) member.carRequests.remove(car.ownerId);
+      });
+    });
+
+    car.riders.forEach((rider) {
+      meet.membersAreComming.forEach((member) {
+        if (rider.uid == member.uid) member.carRide = null;
+      });
+    });
+
     final eventMember = eventMemberById(car.ownerId, meetId);
     eventMember.car = null;
     notifyListeners();
+
+    return await AppDB().updateMeeting(gangId: _gang.id, meet: meet);
   }
 
-  void meetAcception(
-      {ConfirmationType isComming, String userId, String meetId}) {
+  Future<void> meetAcception(
+      {ConfirmationType isComming, String userId, String meetId}) async {
     final eventMember = eventMemberById(userId, meetId);
+    final lastConfirmationType = eventMember.isComming;
     eventMember.isComming = isComming;
+    if (isComming == ConfirmationType.NotArrive && eventMember.car != null) {
+      removeCar(eventMember.car, meetId);
+      eventMember.car = null;
+    }
+
     notifyListeners();
+    await AppDB().updateMeeting(
+      gangId: _gang.id,
+      meet: getMeetById(meetId),
+    );
   }
 
   Future<void> confirmCarRideRequest(
@@ -158,22 +184,84 @@ class CurrentGang extends ChangeNotifier {
 
     riderEventMember.carRequests.clear();
     riderEventMember.carRide = car.ownerId;
-    await AppDB().confirmRideRequest(gangId: _gang.id, meet: meet);
     notifyListeners();
+
+    await AppDB().updateMeeting(gangId: _gang.id, meet: meet);
   }
 
   Future<void> addCar({int places, String userId, String meetId}) async {
     final meet = getMeetById(meetId);
-    meet.membersAreComming
-        .firstWhere((eventMember) => eventMember.uid == userId)
-        .car = Car(
+    final eventMember = eventMemberById(userId, meetId);
+    eventMember.car = Car(
       ownerId: userId,
       riders: [],
       places: places,
       requests: [],
     );
-    await AppDB().addCar(gangId: _gang.id, meet: meet);
+
+    eventMember.carRequests.clear();
+
+    await AppDB().updateMeeting(gangId: _gang.id, meet: meet);
     notifyListeners();
+  }
+
+  Future<void> joinToCar(
+      String meetId, AppUser user, String pickUpFrom, Car car) async {
+    final meet = getMeetById(meetId);
+    meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == car.ownerId)
+        .car
+        .requests
+        .add(CarRider(
+          name: user.fullName,
+          uid: user.uid,
+          pickupFrom: pickUpFrom,
+        ));
+    meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == user.uid)
+        .carRequests
+        .add(car.ownerId);
+    notifyListeners();
+    await AppDB().updateMeeting(gangId: _gang.id, meet: meet);
+  }
+
+  Future<void> removeCarRider(String meetId, Car car, String riderUid) async {
+    final meet = getMeetById(meetId);
+    final ridersList = car.riders;
+
+    ridersList.removeWhere((rider) => rider.uid == riderUid);
+
+    final riderEventMember = meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == riderUid);
+
+    riderEventMember.carRide = null;
+    notifyListeners();
+    await AppDB().updateMeeting(gangId: _gang.id, meet: meet);
+  }
+
+  Future<void> leaveGang(AppUser user) async {
+    for (final meet in _meets) {
+      final eventMember = eventMemberById(user.uid, meet.id);
+      if (eventMember.car != null) {
+        removeCar(eventMember.car, meet.id);
+      }
+      eventMember.carRequests.forEach((ownerId) {
+        meet.membersAreComming
+            .firstWhere((member) => member.uid == ownerId)
+            .carRequests
+            .removeWhere((riderId) => riderId == user.uid);
+      });
+      if (eventMember.carRide != null) {
+        meet.membersAreComming
+            .firstWhere((member) => member.uid == eventMember.carRide)
+            .car
+            .riders
+            .removeWhere((rider) => rider.uid == user.uid);
+      }
+      meet.membersAreComming.removeWhere((member) => member.uid == user.uid);
+      await AppDB().updateMeeting(gangId: _gang.id, meet: meet);
+    }
+    await AppDB().leaveGang(gangId: _gang.id, user: user);
   }
 
   EventMember eventMemberById(String uid, String meetId) {

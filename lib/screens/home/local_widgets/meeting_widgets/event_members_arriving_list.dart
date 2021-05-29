@@ -141,13 +141,8 @@ class EvetMembersArrivingList extends StatelessWidget {
                         );
                       }).then((value) {
                     if (value != null) {
-                      AppDB()
-                          .joinToCar(
-                        user: currentUser.user,
-                        meet: meet,
-                        car: car,
-                        pickUpFrom: value,
-                      )
+                      currentGang
+                          .joinToCar(meet.id, currentUser.user, value, car)
                           .then((value) {
                         Fluttertoast.showToast(
                           msg: "request sent successfully!",

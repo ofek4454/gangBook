@@ -3,7 +3,6 @@ import 'package:gangbook/models/app_user.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/meet.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/car_owner_controllers.dart';
-import 'package:gangbook/services/database.dart';
 import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
 import 'package:provider/provider.dart';
@@ -15,24 +14,17 @@ class UserArrivalControlButtons extends StatelessWidget {
     final _currentGang = Provider.of<CurrentGang>(context, listen: false);
     final _meet = Provider.of<Meet>(context, listen: false);
 
-    final result = await AppDB().meetAcception(
+    await _currentGang.meetAcception(
       isComming: isCommig,
-      user: _currentUser.user,
-      meet: _meet,
+      userId: _currentUser.user.uid,
+      meetId: _meet.id,
     );
-    if (result == 'success') {
-      _currentGang.meetAcception(
-        isComming: isCommig,
-        userId: _currentUser.user.uid,
-        meetId: _meet.id,
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    final _currentGang = Provider.of<CurrentGang>(context, listen: false);
+    //final _currentGang = Provider.of<CurrentGang>(context, listen: false);
     final _meet = Provider.of<Meet>(context, listen: false);
 
     final userIsComming = _meet.userAreComming(_currentUser.user.uid);
@@ -146,33 +138,34 @@ class UserArrivalControlButtons extends StatelessWidget {
 
     return Row(
       children: [
-        OutlinedButton(
-            child: Icon(
-              eventMember.carRide != null
-                  ? Icons.hail
-                  : Icons.directions_car_outlined,
-              color: eventMember.carRide != null
-                  ? Colors.green
-                  : eventMember.car == null
-                      ? Colors.red
-                      : Colors.green,
-            ),
-            onPressed: () async {
-              if (eventMember.carRide != null) {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (ctx) =>
-                      CarOwnerControllers(_currentGang, _meet, isDriver: false),
-                );
-              } else if (eventMember.car == null) {
-                await addCar(context, _currentUser.user, _meet, _currentGang);
-              } else {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (ctx) => CarOwnerControllers(_currentGang, _meet),
-                );
-              }
-            }),
+        if (eventMember.isComming == ConfirmationType.Arrive)
+          OutlinedButton(
+              child: Icon(
+                eventMember.carRide != null
+                    ? Icons.hail
+                    : Icons.directions_car_outlined,
+                color: eventMember.carRide != null
+                    ? Colors.green
+                    : eventMember.car == null
+                        ? Colors.red
+                        : Colors.green,
+              ),
+              onPressed: () async {
+                if (eventMember.carRide != null) {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (ctx) => CarOwnerControllers(_currentGang, _meet,
+                        isDriver: false),
+                  );
+                } else if (eventMember.car == null) {
+                  await addCar(context, _currentUser.user, _meet, _currentGang);
+                } else {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (ctx) => CarOwnerControllers(_currentGang, _meet),
+                  );
+                }
+              }),
         SizedBox(width: 10),
         Expanded(
           child: OutlinedButton(
