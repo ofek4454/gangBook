@@ -141,7 +141,7 @@ class ThereIsMeet extends StatelessWidget {
         .map(
           (rider) => ListTile(
             title: Text(rider.name),
-            subtitle: Text(rider.pickupFrom ?? ''),
+            subtitle: Text(rider.pickupFrom ?? ' '),
             trailing: OutlinedButton(
                 onPressed: () async {
                   await currentGang.confirmCarRideRequest(
