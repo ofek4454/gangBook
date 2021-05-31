@@ -49,13 +49,14 @@ class ThereIsMeet extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Text(
-                      _meet.moreInfo ?? 'loading...',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Theme.of(context).secondaryHeaderColor,
+                    if (_meet.moreInfo.isNotEmpty)
+                      Text(
+                        _meet.moreInfo ?? 'loading...',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).secondaryHeaderColor,
+                        ),
                       ),
-                    ),
                     SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -80,7 +80,7 @@ class DotsIndicator extends StatelessWidget {
 
   Widget _buildRadioButton(BuildContext context, int index) {
     final screenSize = MediaQuery.of(context).size;
-    final size = min((screenSize.width * 0.05), 20.0);
+    final size = min((screenSize.width * 0.04), 20.0);
 
     return GestureDetector(
       onTap: () {

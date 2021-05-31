@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/screens/root/root.dart';
 import 'package:gangbook/services/database.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/state_managment/current_user.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
