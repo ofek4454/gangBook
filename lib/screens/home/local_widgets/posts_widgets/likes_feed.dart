@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/post.dart';
+import 'package:gangbook/models/post_model.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:intl/intl.dart';
 

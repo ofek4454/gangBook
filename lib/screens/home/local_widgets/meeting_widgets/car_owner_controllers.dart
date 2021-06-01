@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/auth_model.dart';
 import 'package:gangbook/models/event_member.dart';
-import 'package:gangbook/models/meet.dart';
-import 'package:gangbook/services/database.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/meet_model.dart';
+import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/services/database_futures.dart';
 import 'package:provider/provider.dart';
 
 class CarOwnerControllers extends StatefulWidget {
-  final CurrentGang currentGang;
-  final Meet meet;
+  final GangModel currentGang;
+  final MeetModel meet;
   final bool isDriver;
 
   CarOwnerControllers(this.currentGang, this.meet, {this.isDriver = true});
@@ -18,20 +19,50 @@ class CarOwnerControllers extends StatefulWidget {
 }
 
 class _CarOwnerControllersState extends State<CarOwnerControllers> {
+  Future<void> removeCarRider(Car car, String riderUid) async {
+    final ridersList = car.riders;
+
+    ridersList.removeWhere((rider) => rider.uid == riderUid);
+
+    final riderEventMember = widget.meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == riderUid);
+
+    riderEventMember.carRide = null;
+    final gangId = Provider.of<GangModel>(context, listen: false).id;
+    await DBFutures().updateMeeting(gangId: gangId, meet: widget.meet);
+  }
+
+  Future<String> removeCar(Car car) async {
+    car.requests.forEach((rider) {
+      widget.meet.membersAreComming.forEach((member) {
+        if (rider.uid == member.uid) member.carRequests.remove(car.ownerId);
+      });
+    });
+
+    car.riders.forEach((rider) {
+      widget.meet.membersAreComming.forEach((member) {
+        if (rider.uid == member.uid) member.carRide = null;
+      });
+    });
+
+    final eventMember = widget.meet.eventMemberById(car.ownerId);
+    eventMember.car = null;
+
+    final gangId = Provider.of<GangModel>(context, listen: false).id;
+    return await DBFutures().updateMeeting(gangId: gangId, meet: widget.meet);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _currentUser = Provider.of<CurrentUser>(context, listen: false);
+    final _currentUser = Provider.of<AuthModel>(context, listen: false);
 
     EventMember carOwner;
     Car car;
     if (widget.isDriver) {
-      car = widget.currentGang
-          .eventMemberById(_currentUser.user.uid, widget.meet.id)
-          .car;
+      car = widget.meet.eventMemberById(_currentUser.uid).car;
     } else {
-      final ev = widget.currentGang
-          .eventMemberById(_currentUser.user.uid, widget.meet.id);
-      carOwner = widget.currentGang.eventMemberById(ev.carRide, widget.meet.id);
+      final ev = widget.meet.eventMemberById(_currentUser.uid);
+      carOwner = widget.meet.eventMemberById(ev.carRide);
       car = carOwner.car;
     }
 
@@ -69,13 +100,7 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
                               foregroundColor:
                                   MaterialStateProperty.all<Color>(Colors.red),
                             ),
-                            onPressed: () async {
-                              await widget.currentGang.removeCarRider(
-                                widget.meet.id,
-                                car,
-                                rider.uid,
-                              );
-                            },
+                            onPressed: () => removeCarRider(car, rider.uid),
                             child: Text(
                               'remove',
                             )),
@@ -116,8 +141,7 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
                     ),
                   );
                   if (!desideToRemoveCar) return;
-                  final result =
-                      await widget.currentGang.removeCar(car, widget.meet.id);
+                  final result = await removeCar(car);
                   if (result == 'success') {
                     Navigator.of(context).pop();
                   } else {

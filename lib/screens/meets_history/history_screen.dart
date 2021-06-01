@@ -3,7 +3,6 @@ import 'package:gangbook/models/auth_model.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/meet_model.dart';
-import 'package:gangbook/screens/home/local_widgets/meeting_widgets/event_members_arriving_list.dart';
 import 'package:gangbook/services/database_futures.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
@@ -32,7 +31,7 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentGang = Provider.of<GangModel>(context);
+    final currentGang = Provider.of<GangModel>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -127,14 +126,14 @@ class HistoryScreen extends StatelessWidget {
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        builder: (_) => EvetMembersArrivingList(
-                                          currentGang: currentGang,
-                                          meet: meet,
-                                          isChangeable: false,
-                                        ),
-                                      );
+                                      // showModalBottomSheet(
+                                      //   context: context,
+                                      //   builder: (_) => EvetMembersArrivingList(
+                                      //     currentGang: currentGang,
+                                      //     meet: meet,
+                                      //     isChangeable: false,
+                                      //   ),
+                                      // );
                                     },
                                     icon: Icon(Icons.people_alt_outlined),
                                   ),

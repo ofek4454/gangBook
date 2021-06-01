@@ -51,6 +51,17 @@ class PostComment {
       this.likes,
       this.commetId});
 
+  PostComment.fromDocumentSnapshot(DocumentSnapshot doc) {
+    this.commetId = doc.id;
+    this.comment = doc.data()['comment'];
+    this.uid = doc.data()['uid'];
+    this.likes = List<String>.from(doc.data()['likes'])
+        .map<PostLike>((like) => PostLike.fromJson(like))
+        .toList();
+    this.name = doc.data()['name'];
+    this.createdAt = doc.data()['createdAt'];
+  }
+
   bool doILike(String uid) {
     bool retVal = false;
     try {

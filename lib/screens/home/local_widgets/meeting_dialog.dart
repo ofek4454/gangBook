@@ -1,8 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/meet.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/meet_model.dart';
+import 'package:gangbook/services/database_streams.dart';
 import 'package:provider/provider.dart';
 import 'meeting_widgets/there_is_meeting.dart';
 import 'meeting_widgets/there_is_no_meeting.dart';
@@ -18,9 +19,10 @@ class _MeetingDialogState extends State<MeetingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CurrentGang>(
+    return Consumer<GangModel>(
       builder: (context, currentGang, child) {
-        if (currentGang.gang.meetIds == null) return Container();
+        if (currentGang == null || currentGang.meetIds == null)
+          return Container();
         return Column(
           children: [
             Container(
@@ -33,15 +35,16 @@ class _MeetingDialogState extends State<MeetingDialog> {
                 }),
                 scrollDirection: Axis.horizontal,
                 //shrinkWrap: true,
-                itemCount: currentGang.gang.meetIds.length + 1,
+                itemCount: currentGang.meetIds.length + 1,
                 itemBuilder: (ctx, i) {
                   Widget child;
-                  if (i == currentGang.gang.meetIds.length)
+                  if (i == currentGang.meetIds.length)
                     child = ThereIsNoMeeting();
                   else
-                    child = Provider<Meet>.value(
-                      value:
-                          currentGang.getMeetById(currentGang.gang.meetIds[i]),
+                    child = StreamProvider<MeetModel>.value(
+                      initialData: null,
+                      value: DBStreams()
+                          .getMeet(currentGang.meetIds[i], currentGang.id),
                       child: ThereIsMeet(),
                     );
                   return Padding(
@@ -56,7 +59,7 @@ class _MeetingDialogState extends State<MeetingDialog> {
             ),
             SizedBox(height: 5),
             DotsIndicator(
-              max: currentGang.gang.meetIds.length + 1,
+              max: currentGang.meetIds.length + 1,
               current: currentPos,
               animateToPage: (page) => controller.animateToPage(
                 page,
@@ -97,7 +100,6 @@ class DotsIndicator extends StatelessWidget {
           color: index == current
               ? Theme.of(context).secondaryHeaderColor
               : Colors.transparent,
-          // לכפתור יהיה מסגרת ככה שיהיה בולט גם כשהוא שקוף
           border: Border.all(
             width: 2,
             color: Theme.of(context).secondaryHeaderColor,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/schedule_new_meeting/schedule_new_meeting_screen.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +13,10 @@ class ThereIsNoMeeting extends StatelessWidget {
   void _scheduleMeeting(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ScheduleNewMeetingScreen(),
+        builder: (_) => ScheduleNewMeetingScreen(
+          Provider.of<GangModel>(context, listen: false),
+          Provider.of<UserModel>(context, listen: false),
+        ),
       ),
     );
   }
@@ -20,10 +24,8 @@ class ThereIsNoMeeting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool haveMoreMeetings = false;
-    if (Provider.of<CurrentGang>(context, listen: false)
-        .gang
-        .meetIds
-        .isNotEmpty) haveMoreMeetings = true;
+    if (Provider.of<GangModel>(context, listen: false).meetIds.isNotEmpty)
+      haveMoreMeetings = true;
     return Center(
       child: WhiteRoundedCard(
         child: Container(

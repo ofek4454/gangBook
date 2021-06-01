@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/create_gang/create_gang_screen.dart';
 import 'package:gangbook/screens/join_gang/join_gang_screen.dart';
-import 'package:gangbook/screens/root/root.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/services/auth.dart';
 import 'package:provider/provider.dart';
 
-class NoGroupScreeen extends StatelessWidget {
+class NotInGangScreeen extends StatelessWidget {
   void _goToCreateGang(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => CreateGangScreen(),
+        builder: (_) =>
+            CreateGangScreen(Provider.of<UserModel>(context, listen: false)),
       ),
     );
   }
@@ -17,18 +18,14 @@ class NoGroupScreeen extends StatelessWidget {
   void _goToJoinGang(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => JoinGangScreen(),
+        builder: (_) =>
+            JoinGangScreen(Provider.of<UserModel>(context, listen: false)),
       ),
     );
   }
 
   Future<void> _signout(BuildContext context) async {
-    String result =
-        await Provider.of<CurrentUser>(context, listen: false).signOut();
-    if (result == 'success') {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => RootScreen()), (route) => false);
-    }
+    await Auth().signOut();
   }
 
   @override

@@ -2,13 +2,18 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/root/root.dart';
-import 'package:gangbook/services/database.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/services/database_futures.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class ScheduleNewMeetingScreen extends StatefulWidget {
+  final GangModel currentGang;
+  final UserModel user;
+
+  ScheduleNewMeetingScreen(this.currentGang, this.user);
+
   @override
   _ScheduleNewMeetingScreenState createState() =>
       _ScheduleNewMeetingScreenState();
@@ -34,7 +39,6 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
       isLoading = true;
     });
     try {
-      final _currentUser = Provider.of<CurrentUser>(context, listen: false);
       DateTime meetingAt = DateTime(
         meetingDate.year,
         meetingDate.month,
@@ -43,12 +47,13 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
         meetingTime.minute,
       );
 
-      final result = await AppDB().setNewMeet(
-        user: _currentUser.user,
+      final result = await DBFutures().setNewMeet(
+        user: widget.user,
         title: titleController.text,
         location: locationController.text,
         moreInfo: moreInfoController.text,
         meetingAt: Timestamp.fromDate(meetingAt),
+        gang: widget.currentGang,
       );
       if (result == 'success') {
         Navigator.of(context).pushAndRemoveUntil(

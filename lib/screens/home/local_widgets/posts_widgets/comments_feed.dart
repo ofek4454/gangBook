@@ -1,22 +1,49 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/post.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/models/auth_model.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/post_model.dart';
+import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/services/posts_db.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class CommentsFeed extends StatelessWidget {
   final Post post;
-  final CurrentGang currentGang;
+  final GangModel currentGang;
+  final UserModel user;
 
-  CommentsFeed(this.post, this.currentGang);
+  CommentsFeed(this.post, this.currentGang, this.user);
+
+  void likeComment(PostComment comment) async {
+    final postLike = PostLike(
+      uid: user.uid,
+      name: user.fullName,
+      createdAt: Timestamp.now(),
+    );
+    comment.likes.add(postLike);
+    final res =
+        await PostsDB().likeComment(currentGang.id, post.id, comment, postLike);
+    if (res == 'error') {
+      post.likes.remove(postLike);
+    }
+  }
+
+  void unLikeComment(PostComment comment) async {
+    final likeToRemove =
+        comment.likes.firstWhere((like) => like.uid == user.uid);
+    comment.likes.remove(likeToRemove);
+    final res = await PostsDB()
+        .unLikeComment(currentGang.id, post.id, comment, likeToRemove);
+    if (res == 'error') {
+      post.likes.add(likeToRemove);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final List<PostComment> comments = post.comments;
 
-    final user = Provider.of<CurrentUser>(context, listen: false).user;
     return StatefulBuilder(
       builder: (context, setState) => Container(
         padding: EdgeInsets.symmetric(vertical: 15),
@@ -47,7 +74,6 @@ class CommentsFeed extends StatelessWidget {
                     ],
                   ),
                 ),
-                //Text(comments[i].name),
                 subtitle: Text(
                   DateFormat('dd/MM/yy HH:mm')
                       .format(comments[i].createdAt.toDate()),
@@ -67,13 +93,11 @@ class CommentsFeed extends StatelessWidget {
                       onPressed: () {
                         if (doIlike) {
                           setState(() {
-                            currentGang.unLikeComment(
-                                post, comments[i], user.uid);
+                            unLikeComment(comments[i]);
                           });
                         } else {
                           setState(() {
-                            currentGang.likeComment(
-                                post, comments[i], user.uid, user.fullName);
+                            likeComment(comments[i]);
                           });
                         }
                       },

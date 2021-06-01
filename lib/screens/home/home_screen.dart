@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/post_model.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_dialog.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/post_item.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/upload_post_field.dart';
-import 'package:gangbook/screens/no_group/no_group_screen.dart';
-import 'package:gangbook/screens/root/root.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/services/posts_db.dart';
+import 'package:gangbook/state_managment/post_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,18 +18,33 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  void initState() {
-    super.initState();
+  List<Post> posts;
 
-    final _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    final _currentGang = Provider.of<CurrentGang>(context, listen: false);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadPosts();
+  }
 
-    _currentGang.updateStateFromDB(_currentUser.user.gangId);
+  Future<void> loadPosts() async {
+    final _currentGang = Provider.of<GangModel>(context, listen: false);
+    if (_currentGang == null) return;
+    posts = await PostsDB().loadPosts(_currentGang.id);
+
+    setState(() {});
+  }
+
+  void uploadPost(Post post) {
+    setState(() {
+      posts.insert(0, post);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final _currentGang = Provider.of<CurrentGang>(context);
+    final _currentGang = Provider.of<GangModel>(context);
+    final user = Provider.of<UserModel>(context);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -44,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: () => _currentGang.updateStateFromDB(_currentGang.gang.id),
+        onRefresh: () => loadPosts(),
         child: Scrollbar(
           thickness: 6,
           child: ListView(
@@ -53,21 +69,20 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 20),
               MeetingDialog(),
               SizedBox(height: 20),
-              UploadPostField(),
+              UploadPostField(uploadPost),
               SizedBox(height: 20),
-              //PostsFeed(),
-              if (_currentGang.gang.posts != null &&
-                  _currentGang.gang.posts.isNotEmpty)
-                ..._currentGang.gang.posts
-                    .map((post) => PostItem(post))
+              if (posts == null)
+                Center(child: CircularProgressIndicator.adaptive()),
+              if (posts != null)
+                ...posts
+                    .map(
+                      (post) => ChangeNotifierProvider<PostState>(
+                        create: (context) =>
+                            PostState(post, user, _currentGang.id),
+                        child: PostItem(),
+                      ),
+                    )
                     .toList(),
-
-              SizedBox(height: 20),
-              RaisedButton(
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => NoGroupScreeen())),
-                child: Text('noGroup'),
-              ),
             ],
           ),
         ),

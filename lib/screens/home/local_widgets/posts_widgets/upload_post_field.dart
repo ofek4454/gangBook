@@ -2,9 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:gangbook/services/database.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/services/posts_db.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +15,9 @@ enum PostType {
 }
 
 class UploadPostField extends StatefulWidget {
+  final Function uploadPost;
+
+  UploadPostField(this.uploadPost);
   @override
   _UploadPostFieldState createState() => _UploadPostFieldState();
 }
@@ -138,12 +140,11 @@ class _UploadPostFieldState extends State<UploadPostField> {
     setState(() {
       isLoading = true;
     });
-    final user = Provider.of<CurrentUser>(context, listen: false).user;
-    final currentGang = Provider.of<CurrentGang>(context, listen: false);
+    final user = Provider.of<UserModel>(context, listen: false);
 
     try {
       FocusScope.of(context).unfocus();
-      final post = await AppDB().uploadPost(
+      final post = await PostsDB().uploadPost(
         user.gangId,
         user.fullName,
         user.uid,
@@ -163,7 +164,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
         });
         return;
       }
-      currentGang.addPost(post);
+      widget.uploadPost(post);
       textController.clear();
       images = [];
       videos = [];
@@ -179,7 +180,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final fieldHeight = screenSize.height * 0.15;
-    final user = Provider.of<CurrentUser>(context, listen: false).user;
+    final user = Provider.of<UserModel>(context, listen: false);
 
     return Card(
       elevation: 5,

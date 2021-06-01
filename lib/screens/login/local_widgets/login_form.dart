@@ -5,18 +5,18 @@ import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/root/root.dart';
+import 'package:gangbook/services/auth.dart';
+import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:provider/provider.dart';
 
 import '../../signup/signup_screen.dart';
-import '../../../widgets/whiteRoundedCard.dart';
-import '../../../state_managment/current_user.dart';
 
-class OurLoginForm extends StatefulWidget {
+class LoginForm extends StatefulWidget {
   @override
-  _OurLoginFormState createState() => _OurLoginFormState();
+  _LoginFormState createState() => _LoginFormState();
 }
 
-class _OurLoginFormState extends State<OurLoginForm> {
+class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
 
   Map<String, String> values = {
@@ -39,14 +39,10 @@ class _OurLoginFormState extends State<OurLoginForm> {
     });
     _formKey.currentState.save();
     try {
-      final res =
-          await Provider.of<CurrentUser>(context, listen: false).logInUser(
+      await Auth().logInUser(
         email: values['email'],
         password: values['password'],
       );
-      if (res) {
-        moveToHome();
-      }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -65,8 +61,7 @@ class _OurLoginFormState extends State<OurLoginForm> {
 
   Future<void> signInWithGoogle() async {
     try {
-      final res = await Provider.of<CurrentUser>(context, listen: false)
-          .logInWithGoogle();
+      final res = await Auth().logInWithGoogle();
       if (res) {
         moveToHome();
       }
@@ -151,15 +146,11 @@ class _OurLoginFormState extends State<OurLoginForm> {
                   ),
             FlatButton(
               onPressed: () {
-                Navigator.of(context)
-                    .push(
+                Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => SignupScreen(),
                   ),
-                )
-                    .then((signedUpSuccessfully) {
-                  if (signedUpSuccessfully) moveToHome();
-                });
+                );
               },
               child: Text('Don\'t have an account? SignUp here'),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

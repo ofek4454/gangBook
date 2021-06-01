@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/app_user.dart';
-import 'package:gangbook/screens/history/history_screen.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
-import 'package:gangbook/screens/root/root.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/screens/meets_history/history_screen.dart';
+import 'package:gangbook/services/auth.dart';
+import 'package:gangbook/services/database_futures.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:provider/provider.dart';
 
@@ -48,28 +48,18 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Future<void> _signout() async {
-    String result =
-        await Provider.of<CurrentUser>(context, listen: false).signOut();
-    if (result == 'success') {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => RootScreen()), (route) => false);
-    }
+    await Auth().signOut();
   }
 
-  void _leaveGang(AppUser user) {
+  void _leaveGang(UserModel user) {
     openDrawer();
     showDialog(
       context: context,
       builder: (ctx) {
-        Provider.of<CurrentGang>(context, listen: false)
-            .leaveGang(user)
-            .then((value) {
+        final gang = Provider.of<GangModel>(context, listen: false);
+
+        DBFutures().leaveGang(gang: gang, user: user).then((value) {
           Navigator.of(ctx).pop();
-          Navigator.of(ctx).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (_) => RootScreen(),
-              ),
-              (route) => false);
         });
         return AlertDialog(
             content: Row(
@@ -83,7 +73,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = Provider.of<CurrentUser>(context, listen: false);
+    final user = Provider.of<UserModel>(context, listen: false);
     final textStyle = TextStyle(
       color: Colors.white,
       fontSize: 18,
@@ -117,8 +107,7 @@ class _AppDrawerState extends State<AppDrawer> {
                           backgroundColor: Theme.of(context).canvasColor,
                           radius: MediaQuery.of(context).size.width * 0.1,
                           child: Text(
-                            NameInitials()
-                                .getInitials(currentUser.user.fullName),
+                            NameInitials().getInitials(user.fullName),
                             style: TextStyle(
                               color: Theme.of(context).secondaryHeaderColor,
                               fontSize:
@@ -128,7 +117,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                         SizedBox(width: 15),
                         Text(
-                          currentUser.user.fullName,
+                          user.fullName,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -212,7 +201,7 @@ class _AppDrawerState extends State<AppDrawer> {
                           ),
                         ),
                         ListTile(
-                          onTap: () => _leaveGang(currentUser.user),
+                          onTap: () => _leaveGang(user),
                           leading: Icon(
                             Icons.people_alt,
                             color: Colors.red,

@@ -1,33 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/app_user.dart';
 import 'package:gangbook/models/event_member.dart';
-import 'package:gangbook/models/meet.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/meet_model.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/car_owner_controllers.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/services/database_futures.dart';
 import 'package:provider/provider.dart';
 
 class UserArrivalControlButtons extends StatelessWidget {
   Future<void> _meetAcception(
-      BuildContext context, ConfirmationType isCommig) async {
-    final _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    final _currentGang = Provider.of<CurrentGang>(context, listen: false);
-    final _meet = Provider.of<Meet>(context, listen: false);
+      BuildContext context, ConfirmationType isComming) async {
+    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _currentGang = Provider.of<GangModel>(context, listen: false);
+    final _meet = Provider.of<MeetModel>(context, listen: false);
 
-    await _currentGang.meetAcception(
-      isComming: isCommig,
-      userId: _currentUser.user.uid,
-      meetId: _meet.id,
+    final eventMember = _meet.eventMemberById(_currentUser.uid);
+    eventMember.isComming = isComming;
+    if (isComming == ConfirmationType.NotArrive && eventMember.car != null) {
+      removeCar(eventMember.car, _meet);
+    }
+
+    await DBFutures().updateMeeting(
+      gangId: _currentGang.id,
+      meet: _meet,
     );
+  }
+
+  Future<void> addCar(BuildContext context, int places) async {
+    final user = Provider.of<UserModel>(context, listen: false);
+    final meet = Provider.of<MeetModel>(context, listen: false);
+
+    final eventMember = meet.eventMemberById(user.uid);
+    eventMember.car = Car(
+      ownerId: user.uid,
+      riders: [],
+      places: places,
+      requests: [],
+    );
+
+    eventMember.carRequests?.forEach((carOwnerId) {
+      meet.membersAreComming
+          .firstWhere((eventMember) => eventMember.uid == carOwnerId)
+          .car
+          .requests
+          .removeWhere((carRider) => carRider.uid == eventMember.uid);
+    });
+
+    eventMember.carRequests.clear();
+    await DBFutures().updateMeeting(gangId: user.gangId, meet: meet);
+  }
+
+  void removeCar(Car car, MeetModel meet) {
+    car.requests.forEach((rider) {
+      meet.membersAreComming.forEach((member) {
+        if (rider.uid == member.uid) member.carRequests.remove(car.ownerId);
+      });
+    });
+
+    car.riders.forEach((rider) {
+      meet.membersAreComming.forEach((member) {
+        if (rider.uid == member.uid) member.carRide = null;
+      });
+    });
+
+    final eventMember = meet.eventMemberById(car.ownerId);
+    eventMember.car = null;
   }
 
   @override
   Widget build(BuildContext context) {
-    final _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    //final _currentGang = Provider.of<CurrentGang>(context, listen: false);
-    final _meet = Provider.of<Meet>(context, listen: false);
+    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _meet = Provider.of<MeetModel>(context, listen: false);
 
-    final userIsComming = _meet.userAreComming(_currentUser.user.uid);
+    final userIsComming = _meet.userAreComming(_currentUser.uid);
 
     return userIsComming != ConfirmationType.HasntConfirmed
         ? buildUserConfirmedArrival(context)
@@ -80,8 +125,8 @@ class UserArrivalControlButtons extends StatelessWidget {
     );
   }
 
-  Future<void> addCar(BuildContext context, AppUser user, Meet meet,
-      CurrentGang currentGang) async {
+  Future<void> addCarDialog(BuildContext context, UserModel user,
+      MeetModel meet, GangModel currentGang) async {
     final placesController = TextEditingController();
     await showDialog(
       context: context,
@@ -103,13 +148,10 @@ class UserArrivalControlButtons extends StatelessWidget {
                 await showDialog(
                     context: context,
                     builder: (ctx) {
-                      currentGang
-                          .addCar(
-                            places: int.parse(placesController.text),
-                            userId: user.uid,
-                            meetId: meet.id,
-                          )
-                          .then((_) => Navigator.of(ctx).pop());
+                      addCar(
+                        context,
+                        int.parse(placesController.text),
+                      ).then((_) => Navigator.of(ctx).pop());
 
                       return AlertDialog(
                         content: Row(
@@ -129,12 +171,11 @@ class UserArrivalControlButtons extends StatelessWidget {
   }
 
   Widget buildUserConfirmedArrival(BuildContext context) {
-    final _currentGang = Provider.of<CurrentGang>(context, listen: false);
-    final _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    final _meet = Provider.of<Meet>(context, listen: false);
+    final _currentGang = Provider.of<GangModel>(context, listen: false);
+    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _meet = Provider.of<MeetModel>(context, listen: false);
 
-    final EventMember eventMember =
-        _currentGang.eventMemberById(_currentUser.user.uid, _meet.id);
+    final EventMember eventMember = _meet.eventMemberById(_currentUser.uid);
 
     return Row(
       children: [
@@ -158,7 +199,8 @@ class UserArrivalControlButtons extends StatelessWidget {
                         isDriver: false),
                   );
                 } else if (eventMember.car == null) {
-                  await addCar(context, _currentUser.user, _meet, _currentGang);
+                  await addCarDialog(
+                      context, _currentUser, _meet, _currentGang);
                 } else {
                   showModalBottomSheet(
                     context: context,

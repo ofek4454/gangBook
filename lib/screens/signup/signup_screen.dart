@@ -21,7 +21,7 @@ class SignupScreen extends StatelessWidget {
               padding: EdgeInsets.all(20),
               children: [
                 SizedBox(height: 50),
-                OurSignUpForm(),
+                SignUpForm(),
               ],
             ),
           ),

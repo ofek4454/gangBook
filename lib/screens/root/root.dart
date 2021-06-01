@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/auth_model.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/drawer/app_drawer.dart';
-import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/login/login_screen.dart';
-import 'package:gangbook/screens/no_group/no_group_screen.dart';
+import 'package:gangbook/screens/not_in_gang/not_in_gang_screen.dart';
 import 'package:gangbook/screens/splash/splash_screen.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/services/database_streams.dart';
 import 'package:provider/provider.dart';
 
 enum AuthStatus {
   NotLoggedIn,
-  NotInGroup,
-  InGroup,
+  LoggedIn,
   Unknown,
 }
 
@@ -26,19 +26,11 @@ class _RootScreenState extends State<RootScreen> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    final _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    final result = await _currentUser.tryAutoLogIn();
-
-    if (result == 'success') {
-      if (_currentUser.user.gangId != null) {
-        setState(() {
-          _authStatus = AuthStatus.InGroup;
-        });
-      } else {
-        setState(() {
-          _authStatus = AuthStatus.NotInGroup;
-        });
-      }
+    final _auth = Provider.of<AuthModel>(context);
+    if (_auth != null) {
+      setState(() {
+        _authStatus = AuthStatus.LoggedIn;
+      });
     } else {
       setState(() {
         _authStatus = AuthStatus.NotLoggedIn;
@@ -49,21 +41,40 @@ class _RootScreenState extends State<RootScreen> {
   @override
   Widget build(BuildContext context) {
     switch (_authStatus) {
-      case AuthStatus.InGroup:
-        return ChangeNotifierProvider(
-          create: (ctx) => CurrentGang(),
-          child: AppDrawer(), //HomeScreen(),
+      case AuthStatus.NotLoggedIn:
+        return LoginScreen();
+      case AuthStatus.LoggedIn:
+        final _auth = Provider.of<AuthModel>(context);
+
+        return StreamProvider<UserModel>.value(
+          initialData: null,
+          value: DBStreams().getCurrentUser(_auth.uid),
+          child: LoggedIn(),
         );
-        break;
-      case AuthStatus.NotInGroup:
-        return NoGroupScreeen();
         break;
       case AuthStatus.Unknown:
         return SplashScreen();
         break;
-      case AuthStatus.NotLoggedIn:
-        return LoginScreen();
       default:
+    }
+  }
+}
+
+class LoggedIn extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final currentUser = Provider.of<UserModel>(context);
+    if (currentUser == null) {
+      return SplashScreen();
+    }
+    if (currentUser.gangId == null) {
+      return NotInGangScreeen();
+    } else {
+      return StreamProvider<GangModel>.value(
+        initialData: null,
+        value: DBStreams().getCurrentGang(currentUser.gangId),
+        child: AppDrawer(),
+      );
     }
   }
 }

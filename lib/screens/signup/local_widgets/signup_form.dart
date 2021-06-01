@@ -1,15 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/services/auth.dart';
 import 'package:provider/provider.dart';
 import '../../../widgets/whiteRoundedCard.dart';
 
-class OurSignUpForm extends StatefulWidget {
+class SignUpForm extends StatefulWidget {
   @override
-  _OurSignUpFormState createState() => _OurSignUpFormState();
+  _SignUpFormState createState() => _SignUpFormState();
 }
 
-class _OurSignUpFormState extends State<OurSignUpForm> {
+class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
   Map<String, String> values = {
     'email': '',
@@ -32,14 +32,13 @@ class _OurSignUpFormState extends State<OurSignUpForm> {
     });
     _formKey.currentState.save();
     try {
-      final res =
-          await Provider.of<CurrentUser>(context, listen: false).signUpUser(
+      final res = await Auth().signUpUser(
         email: values['email'],
         password: values['password'],
         name: values['fullname'],
       );
       if (res) {
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop();
       }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/root/root.dart';
-import 'package:gangbook/services/database.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/services/database_futures.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:provider/provider.dart';
 
 class CreateGangScreen extends StatefulWidget {
+  final UserModel user;
+
+  CreateGangScreen(this.user);
+
   @override
   _CreateGangScreenState createState() => _CreateGangScreenState();
 }
@@ -18,16 +22,9 @@ class _CreateGangScreenState extends State<CreateGangScreen> {
     setState(() {
       isLoading = true;
     });
-    final _currentUser = Provider.of<CurrentUser>(context, listen: false);
-    String result =
-        await AppDB().createGang(nameController.text, _currentUser.user);
-    if (result == 'success') {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => RootScreen(),
-          ),
-          (route) => false);
+    final res = await DBFutures().createGang(nameController.text, widget.user);
+    if (res == 'success') {
+      Navigator.of(context).pop();
     }
     setState(() {
       isLoading = false;

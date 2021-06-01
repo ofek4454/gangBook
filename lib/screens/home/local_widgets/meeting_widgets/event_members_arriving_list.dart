@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gangbook/models/auth_model.dart';
 import 'package:gangbook/models/event_member.dart';
-import 'package:gangbook/models/meet.dart';
-import 'package:gangbook/services/database.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:gangbook/state_managment/current_user.dart';
+import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/models/meet_model.dart';
+import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/services/database_futures.dart';
 import 'package:provider/provider.dart';
 
 class EvetMembersArrivingList extends StatelessWidget {
-  final CurrentGang currentGang;
-  final Meet meet;
+  final GangModel currentGang;
+  final MeetModel meet;
+  final UserModel user;
   final bool isChangeable;
-  EvetMembersArrivingList(
-      {this.currentGang, this.meet, this.isChangeable = true});
+
+  EvetMembersArrivingList({
+    this.currentGang,
+    this.meet,
+    this.isChangeable = true,
+    this.user,
+  });
 
   Widget _buildNameRow(EventMember member, Color textColor,
       [BuildContext context]) {
@@ -35,9 +42,24 @@ class EvetMembersArrivingList extends StatelessWidget {
     );
   }
 
-  Widget _buildCar(Car car, BuildContext context) {
-    final currentUser = Provider.of<CurrentUser>(context, listen: false);
+  Future<void> joinToCar(UserModel user, String pickUpFrom, Car car) async {
+    meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == car.ownerId)
+        .car
+        .requests
+        .add(CarRider(
+          name: user.fullName,
+          uid: user.uid,
+          pickupFrom: pickUpFrom,
+        ));
+    meet.membersAreComming
+        .firstWhere((eventMember) => eventMember.uid == user.uid)
+        .carRequests
+        .add(car.ownerId);
+    await DBFutures().updateMeeting(gangId: currentGang.id, meet: meet);
+  }
 
+  Widget _buildCar(Car car, BuildContext context) {
     Color color = Colors.green;
     if (car.places - 1 == car.riders.length)
       color = Colors.red;
@@ -63,7 +85,7 @@ class EvetMembersArrivingList extends StatelessWidget {
                     fontSize: 16.0,
                   );
                 } else {
-                  if (car.ownerId == currentUser.user.uid) {
+                  if (car.ownerId == user.uid) {
                     Fluttertoast.showToast(
                       msg: "You are the driver!",
                       toastLength: Toast.LENGTH_SHORT,
@@ -75,7 +97,7 @@ class EvetMembersArrivingList extends StatelessWidget {
                     );
                     return;
                   }
-                  if (car.riders.contains(currentUser.user.uid)) {
+                  if (car.riders.contains(user.uid)) {
                     Fluttertoast.showToast(
                       msg: "You are allredy in this car!",
                       toastLength: Toast.LENGTH_SHORT,
@@ -87,10 +109,7 @@ class EvetMembersArrivingList extends StatelessWidget {
                     );
                     return;
                   }
-                  if (currentGang
-                          .eventMemberById(currentUser.user.uid, meet.id)
-                          .carRide !=
-                      null) {
+                  if (meet.eventMemberById(user.uid).carRide != null) {
                     Fluttertoast.showToast(
                       msg: "You are placed in another car!",
                       toastLength: Toast.LENGTH_SHORT,
@@ -102,8 +121,8 @@ class EvetMembersArrivingList extends StatelessWidget {
                     );
                     return;
                   }
-                  if (currentGang
-                      .eventMemberById(currentUser.user.uid, meet.id)
+                  if (meet
+                      .eventMemberById(user.uid)
                       .carRequests
                       .contains(car.ownerId)) {
                     Fluttertoast.showToast(
@@ -141,9 +160,7 @@ class EvetMembersArrivingList extends StatelessWidget {
                         );
                       }).then((value) {
                     if (value != null) {
-                      currentGang
-                          .joinToCar(meet.id, currentUser.user, value, car)
-                          .then((value) {
+                      joinToCar(user, value, car).then((value) {
                         Fluttertoast.showToast(
                           msg: "request sent successfully!",
                           toastLength: Toast.LENGTH_SHORT,
@@ -153,17 +170,19 @@ class EvetMembersArrivingList extends StatelessWidget {
                           textColor: Colors.white,
                           fontSize: 16.0,
                         );
-                      }).onError((error, stackTrace) {
-                        Fluttertoast.showToast(
-                          msg: "something went wrong, pleaes try again.",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
-                      });
+                      }).onError(
+                        (error, stackTrace) {
+                          Fluttertoast.showToast(
+                            msg: "something went wrong, pleaes try again.",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
+                        },
+                      );
                     }
                   });
                 }

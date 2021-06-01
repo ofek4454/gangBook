@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gangbook/screens/home/local_widgets/posts_widgets/post_item.dart';
-import 'package:gangbook/state_managment/current_gang.dart';
-import 'package:provider/provider.dart';
 
 class PostsFeed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    /*
     final posts = Provider.of<CurrentGang>(context).gang.posts;
     return posts == null
         ? Container()
@@ -16,5 +14,7 @@ class PostsFeed extends StatelessWidget {
             itemCount: posts.length,
             itemBuilder: (ctx, i) => PostItem(posts[i]),
           );
+          */
+    return Container();
   }
 }
