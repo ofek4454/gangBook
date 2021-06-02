@@ -7,7 +7,8 @@ import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
 import 'package:gangbook/screens/meets_history/history_screen.dart';
 import 'package:gangbook/services/auth.dart';
-import 'package:gangbook/services/database_futures.dart';
+import 'package:gangbook/services/meets_db.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:provider/provider.dart';
 
@@ -29,7 +30,6 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   void openDrawer() {
-    print(value);
     if (isOpen)
       setState(() {
         value = 0;
@@ -42,7 +42,7 @@ class _AppDrawerState extends State<AppDrawer> {
       });
   }
 
-  void ChangePage(Widget pageToShow) {
+  void changePage(Widget pageToShow) {
     _currentPage = pageToShow;
     openDrawer();
   }
@@ -53,12 +53,13 @@ class _AppDrawerState extends State<AppDrawer> {
 
   void _leaveGang(UserModel user) {
     openDrawer();
+
     showDialog(
       context: context,
       builder: (ctx) {
-        final gang = Provider.of<GangModel>(context, listen: false);
+        final gang = Provider.of<GangState>(context, listen: false);
 
-        DBFutures().leaveGang(gang: gang, user: user).then((value) {
+        gang.leaveGang(user).then((value) {
           Navigator.of(ctx).pop();
         });
         return AlertDialog(
@@ -74,6 +75,7 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserModel>(context, listen: false);
+
     final textStyle = TextStyle(
       color: Colors.white,
       fontSize: 18,
@@ -135,7 +137,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             if (_currentPage.runtimeType is HomeScreen)
                               openDrawer();
                             else
-                              ChangePage(HomeScreen(openDrawer));
+                              changePage(HomeScreen(openDrawer));
                           },
                           leading: Icon(
                             Icons.home,
@@ -151,7 +153,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             if (_currentPage.runtimeType is HistoryScreen)
                               openDrawer();
                             else
-                              ChangePage(HistoryScreen(openDrawer));
+                              changePage(HistoryScreen(openDrawer));
                           },
                           leading: Icon(
                             Icons.history,
@@ -178,7 +180,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             if (_currentPage.runtimeType is InviteToGangScreen)
                               openDrawer();
                             else
-                              ChangePage(InviteToGangScreen(openDrawer));
+                              changePage(InviteToGangScreen(openDrawer));
                           },
                           leading: Icon(
                             Icons.share,

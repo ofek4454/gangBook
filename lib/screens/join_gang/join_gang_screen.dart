@@ -2,7 +2,8 @@ import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/root/root.dart';
-import 'package:gangbook/services/database_futures.dart';
+import 'package:gangbook/services/meets_db.dart';
+import 'package:gangbook/services/gang_db.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +25,7 @@ class _JoinGangScreenState extends State<JoinGangScreen> {
       isLoading = true;
     });
 
-    final res = await DBFutures().joinGang(idController.text, widget.user);
+    final res = await GangDB().joinGang(idController.text, widget.user);
     if (res == 'success') {
       Navigator.of(context).pop();
     }

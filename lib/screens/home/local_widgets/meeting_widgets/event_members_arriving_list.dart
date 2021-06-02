@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gangbook/models/auth_model.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/models/user_model.dart';
-import 'package:gangbook/services/database_futures.dart';
-import 'package:provider/provider.dart';
+import 'package:gangbook/state_managment/meet_state.dart';
 
 class EvetMembersArrivingList extends StatelessWidget {
   final GangModel currentGang;
-  final MeetModel meet;
+  final MeetState meet;
   final UserModel user;
   final bool isChangeable;
 
@@ -40,23 +38,6 @@ class EvetMembersArrivingList extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Future<void> joinToCar(UserModel user, String pickUpFrom, Car car) async {
-    meet.membersAreComming
-        .firstWhere((eventMember) => eventMember.uid == car.ownerId)
-        .car
-        .requests
-        .add(CarRider(
-          name: user.fullName,
-          uid: user.uid,
-          pickupFrom: pickUpFrom,
-        ));
-    meet.membersAreComming
-        .firstWhere((eventMember) => eventMember.uid == user.uid)
-        .carRequests
-        .add(car.ownerId);
-    await DBFutures().updateMeeting(gangId: currentGang.id, meet: meet);
   }
 
   Widget _buildCar(Car car, BuildContext context) {
@@ -158,9 +139,9 @@ class EvetMembersArrivingList extends StatelessWidget {
                                 child: Text('Cancel')),
                           ],
                         );
-                      }).then((value) {
-                    if (value != null) {
-                      joinToCar(user, value, car).then((value) {
+                      }).then((pickUpFrom) {
+                    if (pickUpFrom != null) {
+                      meet.joinToCar(user, pickUpFrom, car).then((value) {
                         Fluttertoast.showToast(
                           msg: "request sent successfully!",
                           toastLength: Toast.LENGTH_SHORT,
@@ -201,7 +182,7 @@ class EvetMembersArrivingList extends StatelessWidget {
     final List<EventMember> notArriving = [];
     final List<EventMember> hasntConfirmed = [];
 
-    meet.membersAreComming.forEach((em) {
+    meet.meet.membersAreComming.forEach((em) {
       switch (em.isComming) {
         case ConfirmationType.Arrive:
           arriving.add(em);

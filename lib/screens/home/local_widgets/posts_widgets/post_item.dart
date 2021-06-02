@@ -4,7 +4,8 @@ import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/comments_feed.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/likes_feed.dart';
-import 'package:gangbook/state_managment/post_provider.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/post_state.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
@@ -243,7 +244,8 @@ class PostItem extends StatelessWidget {
                               context: context,
                               builder: (ctx) => CommentsFeed(
                                 post,
-                                Provider.of<GangModel>(context, listen: false),
+                                Provider.of<GangState>(context, listen: false)
+                                    .gang,
                                 user,
                               ),
                             );

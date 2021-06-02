@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/models/auth_model.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/gang_model.dart';
-import 'package:gangbook/models/meet_model.dart';
-import 'package:gangbook/models/user_model.dart';
-import 'package:gangbook/services/database_futures.dart';
+import 'package:gangbook/state_managment/meet_state.dart';
 import 'package:provider/provider.dart';
 
 class CarOwnerControllers extends StatefulWidget {
   final GangModel currentGang;
-  final MeetModel meet;
+  final MeetState meet;
   final bool isDriver;
 
   CarOwnerControllers(this.currentGang, this.meet, {this.isDriver = true});
@@ -19,39 +17,6 @@ class CarOwnerControllers extends StatefulWidget {
 }
 
 class _CarOwnerControllersState extends State<CarOwnerControllers> {
-  Future<void> removeCarRider(Car car, String riderUid) async {
-    final ridersList = car.riders;
-
-    ridersList.removeWhere((rider) => rider.uid == riderUid);
-
-    final riderEventMember = widget.meet.membersAreComming
-        .firstWhere((eventMember) => eventMember.uid == riderUid);
-
-    riderEventMember.carRide = null;
-    final gangId = Provider.of<GangModel>(context, listen: false).id;
-    await DBFutures().updateMeeting(gangId: gangId, meet: widget.meet);
-  }
-
-  Future<String> removeCar(Car car) async {
-    car.requests.forEach((rider) {
-      widget.meet.membersAreComming.forEach((member) {
-        if (rider.uid == member.uid) member.carRequests.remove(car.ownerId);
-      });
-    });
-
-    car.riders.forEach((rider) {
-      widget.meet.membersAreComming.forEach((member) {
-        if (rider.uid == member.uid) member.carRide = null;
-      });
-    });
-
-    final eventMember = widget.meet.eventMemberById(car.ownerId);
-    eventMember.car = null;
-
-    final gangId = Provider.of<GangModel>(context, listen: false).id;
-    return await DBFutures().updateMeeting(gangId: gangId, meet: widget.meet);
-  }
-
   @override
   Widget build(BuildContext context) {
     final _currentUser = Provider.of<AuthModel>(context, listen: false);
@@ -100,7 +65,8 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
                               foregroundColor:
                                   MaterialStateProperty.all<Color>(Colors.red),
                             ),
-                            onPressed: () => removeCarRider(car, rider.uid),
+                            onPressed: () =>
+                                widget.meet.removeCarRider(car, rider.uid),
                             child: Text(
                               'remove',
                             )),
@@ -141,7 +107,7 @@ class _CarOwnerControllersState extends State<CarOwnerControllers> {
                     ),
                   );
                   if (!desideToRemoveCar) return;
-                  final result = await removeCar(car);
+                  final result = await widget.meet.removeCar(car);
                   if (result == 'success') {
                     Navigator.of(context).pop();
                   } else {

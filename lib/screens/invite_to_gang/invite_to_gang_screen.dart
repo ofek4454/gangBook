@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gangbook/models/gang_model.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share/share.dart';
@@ -12,7 +13,7 @@ class InviteToGangScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gang = Provider.of<GangModel>(context, listen: false);
+    final gang = Provider.of<GangState>(context, listen: false).gang;
     return Scaffold(
         appBar: AppBar(
           elevation: 0,

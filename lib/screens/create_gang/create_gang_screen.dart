@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/root/root.dart';
-import 'package:gangbook/services/database_futures.dart';
+import 'package:gangbook/services/meets_db.dart';
+import 'package:gangbook/services/gang_db.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +23,7 @@ class _CreateGangScreenState extends State<CreateGangScreen> {
     setState(() {
       isLoading = true;
     });
-    final res = await DBFutures().createGang(nameController.text, widget.user);
+    final res = await GangDB().createGang(nameController.text, widget.user);
     if (res == 'success') {
       Navigator.of(context).pop();
     }

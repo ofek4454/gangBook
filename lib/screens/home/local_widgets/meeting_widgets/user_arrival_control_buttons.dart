@@ -4,75 +4,25 @@ import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/car_owner_controllers.dart';
-import 'package:gangbook/services/database_futures.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/meet_state.dart';
 import 'package:provider/provider.dart';
 
 class UserArrivalControlButtons extends StatelessWidget {
   Future<void> _meetAcception(
       BuildContext context, ConfirmationType isComming) async {
     final _currentUser = Provider.of<UserModel>(context, listen: false);
-    final _currentGang = Provider.of<GangModel>(context, listen: false);
-    final _meet = Provider.of<MeetModel>(context, listen: false);
+    final _meet = Provider.of<MeetState>(context, listen: false);
 
-    final eventMember = _meet.eventMemberById(_currentUser.uid);
-    eventMember.isComming = isComming;
-    if (isComming == ConfirmationType.NotArrive && eventMember.car != null) {
-      removeCar(eventMember.car, _meet);
-    }
-
-    await DBFutures().updateMeeting(
-      gangId: _currentGang.id,
-      meet: _meet,
-    );
-  }
-
-  Future<void> addCar(BuildContext context, int places) async {
-    final user = Provider.of<UserModel>(context, listen: false);
-    final meet = Provider.of<MeetModel>(context, listen: false);
-
-    final eventMember = meet.eventMemberById(user.uid);
-    eventMember.car = Car(
-      ownerId: user.uid,
-      riders: [],
-      places: places,
-      requests: [],
-    );
-
-    eventMember.carRequests?.forEach((carOwnerId) {
-      meet.membersAreComming
-          .firstWhere((eventMember) => eventMember.uid == carOwnerId)
-          .car
-          .requests
-          .removeWhere((carRider) => carRider.uid == eventMember.uid);
-    });
-
-    eventMember.carRequests.clear();
-    await DBFutures().updateMeeting(gangId: user.gangId, meet: meet);
-  }
-
-  void removeCar(Car car, MeetModel meet) {
-    car.requests.forEach((rider) {
-      meet.membersAreComming.forEach((member) {
-        if (rider.uid == member.uid) member.carRequests.remove(car.ownerId);
-      });
-    });
-
-    car.riders.forEach((rider) {
-      meet.membersAreComming.forEach((member) {
-        if (rider.uid == member.uid) member.carRide = null;
-      });
-    });
-
-    final eventMember = meet.eventMemberById(car.ownerId);
-    eventMember.car = null;
+    await _meet.meetAcception(userId: _currentUser.uid, isComming: isComming);
   }
 
   @override
   Widget build(BuildContext context) {
     final _currentUser = Provider.of<UserModel>(context, listen: false);
-    final _meet = Provider.of<MeetModel>(context, listen: false);
+    final _meet = Provider.of<MeetState>(context, listen: false);
 
-    final userIsComming = _meet.userAreComming(_currentUser.uid);
+    final userIsComming = _meet.meet.userAreComming(_currentUser.uid);
 
     return userIsComming != ConfirmationType.HasntConfirmed
         ? buildUserConfirmedArrival(context)
@@ -125,8 +75,9 @@ class UserArrivalControlButtons extends StatelessWidget {
     );
   }
 
-  Future<void> addCarDialog(BuildContext context, UserModel user,
-      MeetModel meet, GangModel currentGang) async {
+  Future<void> addCarDialog(BuildContext context) async {
+    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _meet = Provider.of<MeetState>(context, listen: false);
     final placesController = TextEditingController();
     await showDialog(
       context: context,
@@ -148,10 +99,10 @@ class UserArrivalControlButtons extends StatelessWidget {
                 await showDialog(
                     context: context,
                     builder: (ctx) {
-                      addCar(
-                        context,
-                        int.parse(placesController.text),
-                      ).then((_) => Navigator.of(ctx).pop());
+                      _meet
+                          .addCar(int.parse(placesController.text),
+                              _currentUser.uid)
+                          .then((_) => Navigator.of(ctx).pop());
 
                       return AlertDialog(
                         content: Row(
@@ -171,9 +122,9 @@ class UserArrivalControlButtons extends StatelessWidget {
   }
 
   Widget buildUserConfirmedArrival(BuildContext context) {
-    final _currentGang = Provider.of<GangModel>(context, listen: false);
+    final _currentGang = Provider.of<GangState>(context, listen: false);
     final _currentUser = Provider.of<UserModel>(context, listen: false);
-    final _meet = Provider.of<MeetModel>(context, listen: false);
+    final _meet = Provider.of<MeetState>(context, listen: false);
 
     final EventMember eventMember = _meet.eventMemberById(_currentUser.uid);
 
@@ -195,16 +146,17 @@ class UserArrivalControlButtons extends StatelessWidget {
                 if (eventMember.carRide != null) {
                   showModalBottomSheet(
                     context: context,
-                    builder: (ctx) => CarOwnerControllers(_currentGang, _meet,
+                    builder: (ctx) => CarOwnerControllers(
+                        _currentGang.gang, _meet,
                         isDriver: false),
                   );
                 } else if (eventMember.car == null) {
-                  await addCarDialog(
-                      context, _currentUser, _meet, _currentGang);
+                  await addCarDialog(context);
                 } else {
                   showModalBottomSheet(
                     context: context,
-                    builder: (ctx) => CarOwnerControllers(_currentGang, _meet),
+                    builder: (ctx) =>
+                        CarOwnerControllers(_currentGang.gang, _meet),
                   );
                 }
               }),

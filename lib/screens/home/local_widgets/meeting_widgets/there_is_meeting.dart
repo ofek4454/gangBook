@@ -5,7 +5,9 @@ import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/meeting_timer.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/user_arrival_control_buttons.dart';
-import 'package:gangbook/services/database_futures.dart';
+import 'package:gangbook/services/meets_db.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/meet_state.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -13,47 +15,11 @@ import 'package:provider/provider.dart';
 import 'event_members_arriving_list.dart';
 
 class ThereIsMeet extends StatelessWidget {
-  Future<void> confirmCarRideRequest({
-    String riderUid,
-    MeetModel meet,
-    Car car,
-    String pickUpFrom,
-    String gangId,
-  }) async {
-    final requstList = car.requests;
-
-    final ridersList = car.riders;
-
-    final index = requstList.indexWhere((rider) => rider.uid == riderUid);
-
-    final rider = requstList.elementAt(index);
-
-    requstList.removeAt(index);
-
-    ridersList.add(rider);
-
-    final riderEventMember = meet.eventMemberById(riderUid);
-
-    riderEventMember.carRequests.remove(car.ownerId);
-    riderEventMember.carRequests?.forEach((carOwnerId) {
-      meet
-          .eventMemberById(carOwnerId)
-          .car
-          .requests
-          .removeWhere((carRider) => carRider.uid == riderEventMember.uid);
-    });
-
-    riderEventMember.carRequests.clear();
-    riderEventMember.carRide = car.ownerId;
-
-    await DBFutures().updateMeeting(gangId: gangId, meet: meet);
-  }
-
   @override
   Widget build(BuildContext context) {
     final _currentUser = Provider.of<UserModel>(context, listen: false);
-    final _currentGang = Provider.of<GangModel>(context, listen: false);
-    final _meet = Provider.of<MeetModel>(context);
+    final _currentGang = Provider.of<GangState>(context, listen: false);
+    final _meet = Provider.of<MeetState>(context);
 
     return WhiteRoundedCard(
       child: Container(
@@ -73,7 +39,7 @@ class ThereIsMeet extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _meet.title,
+                            _meet.meet.title,
                             style: TextStyle(
                               fontSize: 30,
                               color: Colors.black,
@@ -81,16 +47,16 @@ class ThereIsMeet extends StatelessWidget {
                           ),
                           SizedBox(height: 10),
                           Text(
-                            _meet.location,
+                            _meet.meet.location,
                             style: TextStyle(
                               fontSize: 20,
                               color: Theme.of(context).secondaryHeaderColor,
                             ),
                           ),
                           SizedBox(height: 10),
-                          if (_meet.moreInfo.isNotEmpty)
+                          if (_meet.meet.moreInfo.isNotEmpty)
                             Text(
-                              _meet.moreInfo,
+                              _meet.meet.moreInfo,
                               style: TextStyle(
                                 fontSize: 20,
                                 color: Theme.of(context).secondaryHeaderColor,
@@ -109,7 +75,7 @@ class ThereIsMeet extends StatelessWidget {
                               ),
                               Text(
                                 DateFormat('dd/MM/yy HH:mm')
-                                    .format(_meet.meetingAt.toDate()),
+                                    .format(_meet.meet.meetingAt.toDate()),
                                 style: TextStyle(
                                   fontSize: 18,
                                 ),
@@ -117,7 +83,7 @@ class ThereIsMeet extends StatelessWidget {
                             ],
                           ),
                           SizedBox(height: 10),
-                          MeetingTimer(_meet.meetingAt.toDate()),
+                          MeetingTimer(_meet.meet.meetingAt.toDate()),
                           SizedBox(height: 10),
                           UserArrivalControlButtons(),
                           SizedBox(height: 10),
@@ -134,7 +100,6 @@ class ThereIsMeet extends StatelessWidget {
                               ),
                             ..._buildApproveRiders(
                               _meet.eventMemberById(_currentUser.uid),
-                              _currentGang,
                               _meet,
                             ),
                           ]
@@ -152,7 +117,7 @@ class ThereIsMeet extends StatelessWidget {
                                 showModalBottomSheet(
                                   context: context,
                                   builder: (_) => EvetMembersArrivingList(
-                                    currentGang: _currentGang,
+                                    currentGang: _currentGang.gang,
                                     meet: _meet,
                                     user: _currentUser,
                                   ),
@@ -171,8 +136,7 @@ class ThereIsMeet extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildApproveRiders(
-      EventMember eventMember, GangModel currentGang, MeetModel meet) {
+  List<Widget> _buildApproveRiders(EventMember eventMember, MeetState meet) {
     return eventMember.car.requests
         .map(
           (rider) => ListTile(
@@ -180,12 +144,11 @@ class ThereIsMeet extends StatelessWidget {
             subtitle: Text(rider.pickupFrom ?? ' '),
             trailing: OutlinedButton(
                 onPressed: () async {
-                  await confirmCarRideRequest(
-                      riderUid: rider.uid,
-                      meet: meet,
-                      car: eventMember.car,
-                      pickUpFrom: rider.pickupFrom ?? '',
-                      gangId: currentGang.id);
+                  await meet.confirmCarRideRequest(
+                    rider.uid,
+                    eventMember.car,
+                    rider.pickupFrom ?? '',
+                  );
                 },
                 child: Text(
                   'add',

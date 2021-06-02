@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/root/root.dart';
-import 'package:gangbook/services/database_futures.dart';
+import 'package:gangbook/services/meets_db.dart';
 import 'package:intl/intl.dart';
 
 class ScheduleNewMeetingScreen extends StatefulWidget {
@@ -47,7 +47,7 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
         meetingTime.minute,
       );
 
-      final result = await DBFutures().setNewMeet(
+      final result = await MeetDB().setNewMeet(
         user: widget.user,
         title: titleController.text,
         location: locationController.text,

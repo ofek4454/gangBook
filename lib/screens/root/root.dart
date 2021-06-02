@@ -7,6 +7,7 @@ import 'package:gangbook/screens/login/login_screen.dart';
 import 'package:gangbook/screens/not_in_gang/not_in_gang_screen.dart';
 import 'package:gangbook/screens/splash/splash_screen.dart';
 import 'package:gangbook/services/database_streams.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:provider/provider.dart';
 
 enum AuthStatus {
@@ -70,7 +71,7 @@ class LoggedIn extends StatelessWidget {
     if (currentUser.gangId == null) {
       return NotInGangScreeen();
     } else {
-      return StreamProvider<GangModel>.value(
+      return StreamProvider<GangState>.value(
         initialData: null,
         value: DBStreams().getCurrentGang(currentUser.gangId),
         child: AppDrawer(),

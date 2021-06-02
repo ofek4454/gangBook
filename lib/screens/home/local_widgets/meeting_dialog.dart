@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/services/database_streams.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/meet_state.dart';
 import 'package:provider/provider.dart';
 import 'meeting_widgets/there_is_meeting.dart';
 import 'meeting_widgets/there_is_no_meeting.dart';
@@ -19,9 +21,9 @@ class _MeetingDialogState extends State<MeetingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<GangModel>(
+    return Consumer<GangState>(
       builder: (context, currentGang, child) {
-        if (currentGang == null || currentGang.meetIds == null)
+        if (currentGang == null || currentGang.gang.meetIds == null)
           return Container();
         return Column(
           children: [
@@ -35,16 +37,16 @@ class _MeetingDialogState extends State<MeetingDialog> {
                 }),
                 scrollDirection: Axis.horizontal,
                 //shrinkWrap: true,
-                itemCount: currentGang.meetIds.length + 1,
+                itemCount: currentGang.gang.meetIds.length + 1,
                 itemBuilder: (ctx, i) {
                   Widget child;
-                  if (i == currentGang.meetIds.length)
+                  if (i == currentGang.gang.meetIds.length)
                     child = ThereIsNoMeeting();
                   else
-                    child = StreamProvider<MeetModel>.value(
+                    child = StreamProvider<MeetState>.value(
                       initialData: null,
-                      value: DBStreams()
-                          .getMeet(currentGang.meetIds[i], currentGang.id),
+                      value: DBStreams().getMeet(
+                          currentGang.gang.meetIds[i], currentGang.gang.id),
                       child: ThereIsMeet(),
                     );
                   return Padding(
@@ -59,7 +61,7 @@ class _MeetingDialogState extends State<MeetingDialog> {
             ),
             SizedBox(height: 5),
             DotsIndicator(
-              max: currentGang.meetIds.length + 1,
+              max: currentGang.gang.meetIds.length + 1,
               current: currentPos,
               animateToPage: (page) => controller.animateToPage(
                 page,

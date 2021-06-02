@@ -6,7 +6,8 @@ import 'package:gangbook/screens/home/local_widgets/meeting_dialog.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/post_item.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/upload_post_field.dart';
 import 'package:gangbook/services/posts_db.dart';
-import 'package:gangbook/state_managment/post_provider.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/post_state.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,9 +28,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> loadPosts() async {
-    final _currentGang = Provider.of<GangModel>(context, listen: false);
+    final _currentGang = Provider.of<GangState>(context, listen: false);
     if (_currentGang == null) return;
-    posts = await PostsDB().loadPosts(_currentGang.id);
+    posts = await PostsDB().loadPosts(_currentGang.gang.id);
 
     setState(() {});
   }
@@ -42,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _currentGang = Provider.of<GangModel>(context);
+    final _currentGang = Provider.of<GangState>(context);
     final user = Provider.of<UserModel>(context);
 
     return Scaffold(
@@ -78,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     .map(
                       (post) => ChangeNotifierProvider<PostState>(
                         create: (context) =>
-                            PostState(post, user, _currentGang.id),
+                            PostState(post, user, _currentGang.gang.id),
                         child: PostItem(),
                       ),
                     )

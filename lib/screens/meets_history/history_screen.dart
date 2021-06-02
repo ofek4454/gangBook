@@ -3,7 +3,10 @@ import 'package:gangbook/models/auth_model.dart';
 import 'package:gangbook/models/event_member.dart';
 import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/meet_model.dart';
-import 'package:gangbook/services/database_futures.dart';
+import 'package:gangbook/screens/home/local_widgets/meeting_widgets/event_members_arriving_list.dart';
+import 'package:gangbook/services/meets_db.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/meet_state.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +34,7 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentGang = Provider.of<GangModel>(context, listen: false);
+    final currentGang = Provider.of<GangState>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -41,7 +44,7 @@ class HistoryScreen extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<List<MeetModel>>(
-        future: DBFutures().getMeetsHistory(currentGang.id),
+        future: MeetDB().getMeetsHistory(currentGang.gang.id),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done)
             return Center(
@@ -126,14 +129,17 @@ class HistoryScreen extends StatelessWidget {
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
-                                      // showModalBottomSheet(
-                                      //   context: context,
-                                      //   builder: (_) => EvetMembersArrivingList(
-                                      //     currentGang: currentGang,
-                                      //     meet: meet,
-                                      //     isChangeable: false,
-                                      //   ),
-                                      // );
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (_) => EvetMembersArrivingList(
+                                          currentGang: currentGang.gang,
+                                          meet: MeetState(
+                                            meet,
+                                            currentGang.gang.id,
+                                          ),
+                                          isChangeable: false,
+                                        ),
+                                      );
                                     },
                                     icon: Icon(Icons.people_alt_outlined),
                                   ),
