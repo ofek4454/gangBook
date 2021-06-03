@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/event_member.dart';
-import 'package:gangbook/models/gang_model.dart';
-import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/meeting_timer.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/user_arrival_control_buttons.dart';
-import 'package:gangbook/services/meets_db.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/meet_state.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
@@ -85,7 +82,10 @@ class ThereIsMeet extends StatelessWidget {
                           SizedBox(height: 10),
                           MeetingTimer(_meet.meet.meetingAt.toDate()),
                           SizedBox(height: 10),
-                          UserArrivalControlButtons(),
+                          UserArrivalControlButtons(
+                              isChangeable: _meet.meet.meetingAt
+                                  .toDate()
+                                  .isAfter(DateTime.now())),
                           SizedBox(height: 10),
                           if (_meet.eventMemberById(_currentUser.uid).car !=
                               null) ...[
@@ -120,6 +120,9 @@ class ThereIsMeet extends StatelessWidget {
                                     currentGang: _currentGang.gang,
                                     meet: _meet,
                                     user: _currentUser,
+                                    isChangeable: _meet.meet.meetingAt
+                                        .toDate()
+                                        .isAfter(DateTime.now()),
                                   ),
                                 );
                               },

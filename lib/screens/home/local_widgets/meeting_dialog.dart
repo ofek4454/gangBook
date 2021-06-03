@@ -36,7 +36,6 @@ class _MeetingDialogState extends State<MeetingDialog> {
                   currentPos = value;
                 }),
                 scrollDirection: Axis.horizontal,
-                //shrinkWrap: true,
                 itemCount: currentGang.gang.meetIds.length + 1,
                 itemBuilder: (ctx, i) {
                   Widget child;

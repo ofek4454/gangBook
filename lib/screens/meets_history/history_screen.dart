@@ -73,6 +73,8 @@ class HistoryScreen extends StatelessWidget {
                   itemCount: snapshot.data.length,
                   itemBuilder: (ctx, i) {
                     final meet = snapshot.data[i];
+                    if (meet.meetingAt.toDate().isAfter(DateTime.now()))
+                      return Container();
                     return Padding(
                       padding:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 10),

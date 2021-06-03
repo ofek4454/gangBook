@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:gangbook/models/post_model.dart';
+import 'package:gangbook/services/cloudinary_requests.dart';
 
 class PostsDB {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -74,26 +75,46 @@ class PostsDB {
       });
 
       for (int i = 0; i < images.length; i++) {
-        final imageLocation = _firebaseStorage
-            .ref('gangs')
-            .child(gangId)
-            .child('posts')
-            .child(docRef.id)
-            .child('$i');
-        await imageLocation.putFile(images[i]);
-        _imagesUrls.add(await imageLocation.getDownloadURL());
+        final imageUrl = await CloudinaryRequests().uploadPhoto(
+          gangId: gangId,
+          postId: docRef.id,
+          fileName: '$i',
+          image: images[i],
+        );
+        _imagesUrls.add(imageUrl);
       }
 
       for (int i = images.length; i < (images.length + videos.length); i++) {
-        final videoLocation = _firebaseStorage
-            .ref('gangs')
-            .child(gangId)
-            .child('posts')
-            .child(docRef.id)
-            .child('$i');
-        await videoLocation.putFile(videos[i - images.length]);
-        _videosUrls.add(await videoLocation.getDownloadURL());
+        final videoUrl = await CloudinaryRequests().uploadVideo(
+          gangId: gangId,
+          postId: docRef.id,
+          fileName: '$i',
+          video: videos[i],
+        );
+        _videosUrls.add(videoUrl);
       }
+
+      // for (int i = 0; i < images.length; i++) {
+      //   final imageLocation = _firebaseStorage
+      //       .ref('gangs')
+      //       .child(gangId)
+      //       .child('posts')
+      //       .child(docRef.id)
+      //       .child('$i');
+      //   await imageLocation.putFile(images[i]);
+      //   _imagesUrls.add(await imageLocation.getDownloadURL());
+      // }
+
+      // for (int i = images.length; i < (images.length + videos.length); i++) {
+      //   final videoLocation = _firebaseStorage
+      //       .ref('gangs')
+      //       .child(gangId)
+      //       .child('posts')
+      //       .child(docRef.id)
+      //       .child('$i');
+      //   await videoLocation.putFile(videos[i - images.length]);
+      //   _videosUrls.add(await videoLocation.getDownloadURL());
+      // }
 
       await docRef.update({
         'images': _imagesUrls,

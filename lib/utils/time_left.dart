@@ -23,7 +23,7 @@ class TimeLeft {
     } else if (_minUntil == 0) {
       retVal = "almost there ";
     } else {
-      retVal = "error";
+      retVal = "meet passed";
     }
 
     return retVal;

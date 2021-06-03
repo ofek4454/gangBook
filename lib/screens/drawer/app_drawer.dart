@@ -1,14 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
 import 'package:gangbook/screens/meets_history/history_screen.dart';
 import 'package:gangbook/services/auth.dart';
-import 'package:gangbook/services/meets_db.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/posts_feed.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +25,10 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   void initState() {
     super.initState();
-    _currentPage = HomeScreen(openDrawer);
+    _currentPage = ChangeNotifierProvider<PostsFeed>(
+      create: (context) => PostsFeed(),
+      child: HomeScreen(openDrawer),
+    );
   }
 
   void openDrawer() {
@@ -137,7 +139,12 @@ class _AppDrawerState extends State<AppDrawer> {
                             if (_currentPage.runtimeType is HomeScreen)
                               openDrawer();
                             else
-                              changePage(HomeScreen(openDrawer));
+                              changePage(
+                                ChangeNotifierProvider<PostsFeed>(
+                                  create: (context) => PostsFeed(),
+                                  child: HomeScreen(openDrawer),
+                                ),
+                              );
                           },
                           leading: Icon(
                             Icons.home,

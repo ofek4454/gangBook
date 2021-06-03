@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/services/posts_db.dart';
+import 'package:gangbook/state_managment/posts_feed.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -15,9 +16,7 @@ enum PostType {
 }
 
 class UploadPostField extends StatefulWidget {
-  final Function uploadPost;
-
-  UploadPostField(this.uploadPost);
+  UploadPostField();
   @override
   _UploadPostFieldState createState() => _UploadPostFieldState();
 }
@@ -164,7 +163,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
         });
         return;
       }
-      widget.uploadPost(post);
+      Provider.of<PostsFeed>(context, listen: false).uploadPost(post);
       textController.clear();
       images = [];
       videos = [];

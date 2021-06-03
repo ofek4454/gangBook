@@ -9,6 +9,10 @@ import 'package:gangbook/state_managment/meet_state.dart';
 import 'package:provider/provider.dart';
 
 class UserArrivalControlButtons extends StatelessWidget {
+  final bool isChangeable;
+
+  UserArrivalControlButtons({this.isChangeable});
+
   Future<void> _meetAcception(
       BuildContext context, ConfirmationType isComming) async {
     final _currentUser = Provider.of<UserModel>(context, listen: false);
@@ -24,9 +28,23 @@ class UserArrivalControlButtons extends StatelessWidget {
 
     final userIsComming = _meet.meet.userAreComming(_currentUser.uid);
 
-    return userIsComming != ConfirmationType.HasntConfirmed
-        ? buildUserConfirmedArrival(context)
-        : buildUserHasntConfirmed(context);
+    return GestureDetector(
+      onTap: () {
+        if (!isChangeable)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('You cannot change meets that passed.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+      },
+      child: AbsorbPointer(
+        absorbing: !isChangeable,
+        child: userIsComming != ConfirmationType.HasntConfirmed
+            ? buildUserConfirmedArrival(context)
+            : buildUserHasntConfirmed(context),
+      ),
+    );
   }
 
   Row buildUserHasntConfirmed(BuildContext context) {

@@ -39,6 +39,7 @@ dependencies:
   qr_flutter: ^4.0.0
   video_player: ^2.1.1
   share: ^2.0.4
+  cloudinary_sdk: ^3.0.0+6
 
 dev_dependencies:
   flutter_test:
