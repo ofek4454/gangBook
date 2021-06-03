@@ -50,32 +50,45 @@ class _HomeScreenState extends State<HomeScreen> {
             .loadPosts(_currentGang.gang.id),
         child: Scrollbar(
           thickness: 6,
-          child: Consumer<PostsFeed>(
-            builder: (context, postsFeed, child) {
-              return ListView(
-                padding: EdgeInsets.only(left: 20, right: 20),
-                children: [
-                  SizedBox(height: 10),
-                  MeetingDialog(),
-                  SizedBox(height: 20),
-                  UploadPostField(),
-                  SizedBox(height: 10),
-                  if (postsFeed.posts == null) ...{
-                    Center(child: CircularProgressIndicator.adaptive()),
-                  } else ...{
-                    ...postsFeed.posts
-                        .map(
-                          (post) => ChangeNotifierProvider<PostState>(
-                            create: (context) =>
-                                PostState(post, user, _currentGang.gang.id),
-                            child: PostItem(),
-                          ),
-                        )
-                        .toList(),
-                  }
-                ],
-              );
-            },
+          child: ListView(
+            padding: EdgeInsets.only(left: 20, right: 20),
+            children: [
+              SizedBox(height: 10),
+              MeetingDialog(),
+              SizedBox(height: 20),
+              UploadPostField(),
+              SizedBox(height: 10),
+              Consumer<PostsFeed>(
+                builder: (context, postsFeed, child) {
+                  if (postsFeed.posts == null)
+                    return Center(child: CircularProgressIndicator.adaptive());
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: postsFeed.posts.length,
+                    itemBuilder: (listContext, index) {
+                      final post = postsFeed.posts[index];
+                      return ChangeNotifierProvider<PostState>(
+                        key: ValueKey(post.id),
+                        create: (providerContext) =>
+                            PostState(post, user, _currentGang.gang.id),
+                        child: PostItem(),
+                      );
+                    },
+                  );
+                },
+              ),
+
+              // ...postsFeed.posts
+              //     .map(
+              //       (post) => ChangeNotifierProvider<PostState>(
+              //         create: (context) =>
+              //             PostState(post, user, _currentGang.gang.id),
+              //         child: PostItem(),
+              //       ),
+              //     )
+              //     .toList(),
+            ],
           ),
         ),
       ),

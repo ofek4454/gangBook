@@ -1,6 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/comments_feed.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/likes_feed.dart';
@@ -13,6 +11,10 @@ import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 class PostItem extends StatelessWidget {
+  PostItem({
+    Key key,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
