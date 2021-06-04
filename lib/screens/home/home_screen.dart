@@ -6,6 +6,7 @@ import 'package:gangbook/screens/home/local_widgets/posts_widgets/upload_post_fi
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/post_state.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final _currentGang = Provider.of<GangState>(context);
-    final user = Provider.of<UserModel>(context);
+    final user = Provider.of<UserState>(context).user;
 
     return Scaffold(
       appBar: AppBar(

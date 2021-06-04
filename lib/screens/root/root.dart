@@ -8,6 +8,7 @@ import 'package:gangbook/screens/not_in_gang/not_in_gang_screen.dart';
 import 'package:gangbook/screens/splash/splash_screen.dart';
 import 'package:gangbook/services/database_streams.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:provider/provider.dart';
 
 enum AuthStatus {
@@ -47,7 +48,7 @@ class _RootScreenState extends State<RootScreen> {
       case AuthStatus.LoggedIn:
         final _auth = Provider.of<AuthModel>(context);
 
-        return StreamProvider<UserModel>.value(
+        return StreamProvider<UserState>.value(
           initialData: null,
           value: DBStreams().getCurrentUser(_auth.uid),
           child: LoggedIn(),
@@ -64,16 +65,16 @@ class _RootScreenState extends State<RootScreen> {
 class LoggedIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final currentUser = Provider.of<UserModel>(context);
+    final currentUser = Provider.of<UserState>(context);
     if (currentUser == null) {
       return SplashScreen();
     }
-    if (currentUser.gangId == null) {
+    if (currentUser.user.gangId == null) {
       return NotInGangScreeen();
     } else {
       return StreamProvider<GangState>.value(
         initialData: null,
-        value: DBStreams().getCurrentGang(currentUser.gangId),
+        value: DBStreams().getCurrentGang(currentUser.user.gangId),
         child: AppDrawer(),
       );
     }

@@ -6,6 +6,7 @@ import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/car_owner_controllers.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/meet_state.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:provider/provider.dart';
 
 class UserArrivalControlButtons extends StatelessWidget {
@@ -15,7 +16,7 @@ class UserArrivalControlButtons extends StatelessWidget {
 
   Future<void> _meetAcception(
       BuildContext context, ConfirmationType isComming) async {
-    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _currentUser = Provider.of<UserState>(context, listen: false).user;
     final _meet = Provider.of<MeetState>(context, listen: false);
 
     await _meet.meetAcception(userId: _currentUser.uid, isComming: isComming);
@@ -23,7 +24,7 @@ class UserArrivalControlButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _currentUser = Provider.of<UserState>(context, listen: false).user;
     final _meet = Provider.of<MeetState>(context, listen: false);
 
     final userIsComming = _meet.meet.userAreComming(_currentUser.uid);
@@ -94,7 +95,7 @@ class UserArrivalControlButtons extends StatelessWidget {
   }
 
   Future<void> addCarDialog(BuildContext context) async {
-    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _currentUser = Provider.of<UserState>(context, listen: false).user;
     final _meet = Provider.of<MeetState>(context, listen: false);
     final placesController = TextEditingController();
     await showDialog(
@@ -141,7 +142,7 @@ class UserArrivalControlButtons extends StatelessWidget {
 
   Widget buildUserConfirmedArrival(BuildContext context) {
     final _currentGang = Provider.of<GangState>(context, listen: false);
-    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _currentUser = Provider.of<UserState>(context, listen: false).user;
     final _meet = Provider.of<MeetState>(context, listen: false);
 
     final EventMember eventMember = _meet.eventMemberById(_currentUser.uid);

@@ -1,29 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/comments_feed.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/likes_feed.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/post_state.dart';
+import 'package:gangbook/state_managment/posts_feed.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
+enum MenuItem {
+  Delete,
+  Edit,
+}
+
 class PostItem extends StatelessWidget {
   PostItem({
     Key key,
   }) : super(key: key);
 
+  void _comment(BuildContext context) {
+    showModalBottomSheet<String>(
+        context: context,
+        builder: (ctx) {
+          final controller = TextEditingController();
+          return Container(
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    autofocus: true,
+                    controller: controller,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    Navigator.of(ctx).pop(controller.text);
+                  },
+                  child: Text(
+                    'Comment',
+                    style: TextStyle(
+                      color: Theme.of(context).secondaryHeaderColor,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
+        }).then((comment) {
+      if (comment != null && comment.isNotEmpty) {
+        Provider.of<PostState>(context, listen: false).commentsOnPost(comment);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final fieldHeight = screenSize.height * 0.1;
-    final user = Provider.of<UserModel>(context, listen: false);
+    final userState = Provider.of<UserState>(context, listen: false);
+
     return Consumer<PostState>(
       builder: (context, postState, child) {
         final post = postState.post;
-        final doIlike = post.doILike(user.uid);
+        final doIlike = post.doILike(userState.user.uid);
+        final isUserSaved = userState.isPostSaved(post.id);
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -54,38 +101,33 @@ class PostItem extends StatelessWidget {
                             DateFormat('HH:mm dd/MM')
                                 .format(post.createdAt.toDate()),
                           ),
-                          /*PopupMenuButton(
-                          onSelected: (MenuItem value) {
-                            if (value == MenuItem.DELETE) _deletePost(context);
-                            if (value == MenuItem.EDIT) {
-                              images = [...widget.post.images];
-                              newImages = [];
-                              setState(() {
-                                isEdit = true;
-                              });
-                            }
-                            if (value == MenuItem.PIN) _pinPost(context);
-                          },
-                          icon: Icon(Icons.more_vert),
-                          itemBuilder: (ctx) => [
-                            PopupMenuItem(
-                              child: widget.post.isPinned
-                                  ? Text(Strings.UNPIN[Strings.lng])
-                                  : Text(Strings.PIN_POST[Strings.lng]),
-                              value: MenuItem.PIN,
+                          if (post.authorId == userState.user.uid)
+                            PopupMenuButton<MenuItem>(
+                              onSelected: (MenuItem value) {
+                                if (value == MenuItem.Delete) {
+                                  Provider.of<PostsFeed>(context, listen: false)
+                                      .deletePost(
+                                          post.id, userState.user.gangId);
+                                }
+                                if (value == MenuItem.Edit) {
+                                  //Edit
+                                }
+                              },
+                              icon: Icon(Icons.more_vert),
+                              itemBuilder: (ctx) => [
+                                PopupMenuItem(
+                                  child: Text('Delete'),
+                                  value: MenuItem.Delete,
+                                ),
+                                PopupMenuItem(
+                                  child: Text('Edit'),
+                                  value: MenuItem.Edit,
+                                ),
+                              ],
                             ),
-                            PopupMenuItem(
-                              child: Text(Strings.DELETE_POST[Strings.lng]),
-                              value: MenuItem.DELETE,
-                            ),
-                            PopupMenuItem(
-                              child: Text(Strings.UPDATE_POST[Strings.lng]),
-                              value: MenuItem.EDIT,
-                            ),
-                          ],
-                        ),*/
                         ],
                       ),
+                      SizedBox(height: 10),
                       Text(
                         post.content,
                         style: Theme.of(context).textTheme.headline6,
@@ -195,46 +237,7 @@ class PostItem extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.comment),
                       color: Colors.black,
-                      onPressed: () {
-                        showModalBottomSheet<String>(
-                            context: context,
-                            builder: (ctx) {
-                              final controller = TextEditingController();
-                              return Container(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        autofocus: true,
-                                        controller: controller,
-                                        decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        FocusScope.of(context).unfocus();
-                                        Navigator.of(ctx).pop(controller.text);
-                                      },
-                                      child: Text(
-                                        'Comment',
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .secondaryHeaderColor,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              );
-                            }).then((comment) {
-                          if (comment != null && comment.isNotEmpty) {
-                            Provider.of<PostState>(context, listen: false)
-                                .commentsOnPost(comment);
-                          }
-                        });
-                      },
+                      onPressed: () => _comment(context),
                     ),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(20),
@@ -248,7 +251,7 @@ class PostItem extends StatelessWidget {
                                 post,
                                 Provider.of<GangState>(context, listen: false)
                                     .gang,
-                                user,
+                                userState.user,
                               ),
                             );
                           },
@@ -259,6 +262,21 @@ class PostItem extends StatelessWidget {
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
+                        ),
+                      ),
+                    ),
+                    ClipOval(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: IconButton(
+                          icon: Icon(
+                            isUserSaved
+                                ? Icons.bookmark
+                                : Icons.bookmark_border,
+                          ),
+                          onPressed: () => isUserSaved
+                              ? userState.unSavePost(post.id)
+                              : userState.savePost(post.id),
                         ),
                       ),
                     ),

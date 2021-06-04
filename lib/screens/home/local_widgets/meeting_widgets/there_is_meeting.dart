@@ -5,6 +5,7 @@ import 'package:gangbook/screens/home/local_widgets/meeting_widgets/meeting_time
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/user_arrival_control_buttons.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/meet_state.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,7 @@ import 'event_members_arriving_list.dart';
 class ThereIsMeet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final _currentUser = Provider.of<UserModel>(context, listen: false);
+    final _currentUser = Provider.of<UserState>(context, listen: false).user;
     final _currentGang = Provider.of<GangState>(context, listen: false);
     final _meet = Provider.of<MeetState>(context);
 

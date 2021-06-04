@@ -20,4 +20,10 @@ class PostsFeed extends ChangeNotifier {
     _posts.insert(0, post);
     notifyListeners();
   }
+
+  void deletePost(String postId, String gangId) async {
+    _posts.removeWhere((post) => post.id == postId);
+    notifyListeners();
+    await PostsDB().deletePost(gangId, postId);
+  }
 }

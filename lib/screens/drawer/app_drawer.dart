@@ -8,6 +8,7 @@ import 'package:gangbook/screens/meets_history/history_screen.dart';
 import 'package:gangbook/services/auth.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:provider/provider.dart';
 
@@ -76,7 +77,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserModel>(context, listen: false);
+    final user = Provider.of<UserState>(context, listen: false).user;
 
     final textStyle = TextStyle(
       color: Colors.white,

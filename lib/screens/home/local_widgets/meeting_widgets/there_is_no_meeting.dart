@@ -3,6 +3,7 @@ import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/schedule_new_meeting/schedule_new_meeting_screen.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +17,7 @@ class ThereIsNoMeeting extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => ScheduleNewMeetingScreen(
           Provider.of<GangState>(context, listen: false).gang,
-          Provider.of<UserModel>(context, listen: false),
+          Provider.of<UserState>(context, listen: false).user,
         ),
       ),
     );

@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:gangbook/models/post_model.dart';
 import 'package:gangbook/services/cloudinary_requests.dart';
 
 class PostsDB {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
   Future<List<Post>> loadPosts(String gangId, [String lastPostId]) async {
     List<Post> posts = [];
@@ -234,6 +232,22 @@ class PostsDB {
         'likes': [],
       });
       comment.commetId = docRef.id;
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> deletePost(String gangId, String postId) async {
+    String retVal = 'error';
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .doc(postId)
+          .delete();
       retVal = 'success';
     } catch (e) {
       print(e);

@@ -4,16 +4,17 @@ import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/meet_state.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 
 class DBStreams {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Stream<UserModel> getCurrentUser(String uid) {
+  Stream<UserState> getCurrentUser(String uid) {
     return _firestore
         .collection('users')
         .doc(uid)
         .snapshots()
-        .map((doc) => UserModel.fromDocumentSnapshot(doc));
+        .map((doc) => UserState(UserModel.fromDocumentSnapshot(doc)));
   }
 
   Stream<GangState> getCurrentGang(String gangId) {

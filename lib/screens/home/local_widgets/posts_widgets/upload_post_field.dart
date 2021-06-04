@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/services/posts_db.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -139,7 +140,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
     setState(() {
       isLoading = true;
     });
-    final user = Provider.of<UserModel>(context, listen: false);
+    final user = Provider.of<UserState>(context, listen: false).user;
 
     try {
       FocusScope.of(context).unfocus();
@@ -179,7 +180,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final fieldHeight = screenSize.height * 0.15;
-    final user = Provider.of<UserModel>(context, listen: false);
+    final user = Provider.of<UserState>(context, listen: false).user;
 
     return Card(
       elevation: 5,

@@ -3,14 +3,15 @@ import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/create_gang/create_gang_screen.dart';
 import 'package:gangbook/screens/join_gang/join_gang_screen.dart';
 import 'package:gangbook/services/auth.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:provider/provider.dart';
 
 class NotInGangScreeen extends StatelessWidget {
   void _goToCreateGang(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            CreateGangScreen(Provider.of<UserModel>(context, listen: false)),
+        builder: (_) => CreateGangScreen(
+            Provider.of<UserState>(context, listen: false).user),
       ),
     );
   }
@@ -19,7 +20,7 @@ class NotInGangScreeen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) =>
-            JoinGangScreen(Provider.of<UserModel>(context, listen: false)),
+            JoinGangScreen(Provider.of<UserState>(context, listen: false).user),
       ),
     );
   }
