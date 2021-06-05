@@ -7,6 +7,7 @@ class UserModel {
   Timestamp createdAt;
   String gangId;
   List<String> savedPosts;
+  String profileImageUrl;
 
   UserModel(
       {this.uid,
@@ -14,7 +15,8 @@ class UserModel {
       this.fullName,
       this.createdAt,
       this.gangId,
-      this.savedPosts});
+      this.savedPosts,
+      this.profileImageUrl});
 
   UserModel.fromDocumentSnapshot(DocumentSnapshot doc) {
     this.uid = doc.id;
@@ -22,6 +24,7 @@ class UserModel {
     this.fullName = doc.data()['fullname'];
     this.createdAt = doc.data()['createdAt'];
     this.gangId = doc.data()['gangId'];
-    this.savedPosts = List<String>.from(doc.data()['savedPosts']);
+    this.savedPosts = List<String>.from(doc.data()['savedPosts'] ?? []);
+    this.profileImageUrl = doc.data()['profileImageUrl'];
   }
 }

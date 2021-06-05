@@ -5,6 +5,7 @@ import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
 import 'package:gangbook/screens/meets_history/history_screen.dart';
+import 'package:gangbook/screens/profile/profile_screen.dart';
 import 'package:gangbook/services/auth.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
@@ -102,6 +103,7 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserState>(context, listen: false).user;
+    final gangState = Provider.of<GangState>(context, listen: false);
 
     final textStyle = TextStyle(
       color: Colors.white,
@@ -153,6 +155,16 @@ class _AppDrawerState extends State<AppDrawer> {
                             fontSize: 30,
                           ),
                         ),
+                        FittedBox(
+                          child: Text(
+                            '"${gangState?.gang?.name}"',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -197,7 +209,14 @@ class _AppDrawerState extends State<AppDrawer> {
                           ),
                         ),
                         ListTile(
-                          onTap: () {},
+                          onTap: () {
+                            if (_currentPage.runtimeType is ProfileScreen)
+                              openDrawer();
+                            else
+                              changePage(
+                                ProfileScreen(openDrawer),
+                              );
+                          },
                           leading: Icon(
                             Icons.person,
                             color: Colors.white,
