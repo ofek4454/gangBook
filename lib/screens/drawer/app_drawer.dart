@@ -54,25 +54,49 @@ class _AppDrawerState extends State<AppDrawer> {
     await Auth().signOut();
   }
 
-  void _leaveGang(UserModel user) {
+  void _leaveGang(UserModel user) async {
     openDrawer();
 
-    showDialog(
+    final decideToLeaveGang = await showDialog<bool>(
       context: context,
-      builder: (ctx) {
-        final gang = Provider.of<GangState>(context, listen: false);
-
-        gang.leaveGang(user).then((value) {
-          Navigator.of(ctx).pop();
-        });
-        return AlertDialog(
-            content: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [CircularProgressIndicator.adaptive()],
-        ));
-      },
+      builder: (ctx) => AlertDialog(
+        title: Text('Are you sure?'),
+        content: Text('This action cannot be undone'),
+        actions: [
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text('leave gang'),
+            textColor: Colors.red,
+          ),
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text('cancel'),
+            textColor: Colors.black,
+          ),
+        ],
+      ),
     );
+    if (decideToLeaveGang)
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          final gang = Provider.of<GangState>(context, listen: false);
+
+          gang.leaveGang(user).then((value) {
+            Navigator.of(ctx).pop();
+          });
+          return AlertDialog(
+              content: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [CircularProgressIndicator.adaptive()],
+          ));
+        },
+      );
   }
 
   @override

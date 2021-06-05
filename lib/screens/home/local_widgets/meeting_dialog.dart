@@ -1,8 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/gang_model.dart';
-import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/services/database_streams.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/meet_state.dart';
@@ -27,47 +25,52 @@ class _MeetingDialogState extends State<MeetingDialog> {
           return Container();
         return Column(
           children: [
-            Container(
-              width: double.infinity,
-              height: MediaQuery.of(context).size.height * 0.45,
-              child: PageView.builder(
-                controller: controller,
-                onPageChanged: (value) => setState(() {
-                  currentPos = value;
-                }),
-                scrollDirection: Axis.horizontal,
-                itemCount: currentGang.gang.meetIds.length + 1,
-                itemBuilder: (ctx, i) {
-                  Widget child;
-                  if (i == currentGang.gang.meetIds.length)
-                    child = ThereIsNoMeeting();
-                  else
-                    child = StreamProvider<MeetState>.value(
-                      initialData: null,
-                      value: DBStreams().getMeet(
-                          currentGang.gang.meetIds[i], currentGang.gang.id),
-                      child: ThereIsMeet(),
-                    );
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width - 60,
-                      child: child,
+            currentGang.gang.meetIds.isEmpty
+                ? ThereIsNoMeeting()
+                : Container(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height * 0.45,
+                    child: PageView.builder(
+                      controller: controller,
+                      onPageChanged: (value) => setState(() {
+                        currentPos = value;
+                      }),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: currentGang.gang.meetIds.length + 1,
+                      itemBuilder: (ctx, i) {
+                        Widget child;
+                        if (i == currentGang.gang.meetIds.length)
+                          child = ThereIsNoMeeting();
+                        else
+                          child = StreamProvider<MeetState>.value(
+                            initialData: null,
+                            value: DBStreams().getMeet(
+                                currentGang.gang.meetIds[i],
+                                currentGang.gang.id),
+                            child: ThereIsMeet(),
+                          );
+                        return Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width - 60,
+                            child: child,
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
             SizedBox(height: 5),
-            DotsIndicator(
-              max: currentGang.gang.meetIds.length + 1,
-              current: currentPos,
-              animateToPage: (page) => controller.animateToPage(
-                page,
-                duration: Duration(milliseconds: 750),
-                curve: Curves.fastOutSlowIn,
+            if (currentGang.gang.meetIds.isNotEmpty)
+              DotsIndicator(
+                max: currentGang.gang.meetIds.length + 1,
+                current: currentPos,
+                animateToPage: (page) => controller.animateToPage(
+                  page,
+                  duration: Duration(milliseconds: 750),
+                  curve: Curves.fastOutSlowIn,
+                ),
               ),
-            ),
           ],
         );
       },
