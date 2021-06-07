@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gangbook/screens/profile/local_widgets/profile_image_and_bg.dart';
 import 'package:gangbook/screens/profile/local_widgets/saved_posts_feed.dart';
 import 'package:gangbook/screens/profile/local_widgets/user_posts_feed.dart';
+import 'package:gangbook/state_managment/posts_feed.dart';
 import 'package:gangbook/state_managment/user_state.dart';
 import 'package:provider/provider.dart';
 
@@ -53,8 +54,14 @@ class ProfileScreen extends StatelessWidget {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        UserPostsFeed(),
-                        SavedPostsFeed(),
+                        ChangeNotifierProvider<PostsFeed>(
+                          create: (context) => PostsFeed(),
+                          child: UserPostsFeed(),
+                        ),
+                        ChangeNotifierProvider<PostsFeed>(
+                          create: (context) => PostsFeed(),
+                          child: SavedPostsFeed(),
+                        ),
                       ],
                     ),
                   ),

@@ -7,9 +7,28 @@ class PostsFeed extends ChangeNotifier {
 
   List<Post> get posts => _posts;
 
-  Future<void> loadPosts(String gangId) async {
+  Future<void> loadAllPosts(String gangId) async {
     try {
-      _posts = await PostsDB().loadPosts(gangId);
+      _posts = await PostsDB().loadAllPosts(gangId);
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> loadUsersPosts(String gangId, String uid) async {
+    try {
+      _posts = await PostsDB().loadUsersPosts(gangId, uid);
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> loadSavedPosts(
+      String gangId, String uid, List<String> savedPosts) async {
+    try {
+      _posts = await PostsDB().loadSavedPosts(gangId, uid, savedPosts);
       notifyListeners();
     } catch (e) {
       print(e);

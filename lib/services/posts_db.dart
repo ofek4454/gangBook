@@ -7,7 +7,7 @@ import 'package:gangbook/services/cloudinary_requests.dart';
 class PostsDB {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<List<Post>> loadPosts(String gangId, [String lastPostId]) async {
+  Future<List<Post>> loadAllPosts(String gangId, [String lastPostId]) async {
     List<Post> posts = [];
 
     try {
@@ -43,6 +43,95 @@ class PostsDB {
                 .toList(),
           ),
         );
+      }
+    } catch (e) {
+      print(e);
+    }
+    return posts;
+  }
+
+  Future<List<Post>> loadUsersPosts(String gangId, String uid) async {
+    List<Post> posts = [];
+
+    try {
+      final postsCollection = await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .where('authorId', isEqualTo: uid)
+          .orderBy('createdAt')
+          .get();
+
+      for (final docRef in postsCollection.docs) {
+        final commetsCollection =
+            await docRef.reference.collection('comments').get();
+        final List<PostComment> comments = [];
+
+        for (final commentData in commetsCollection.docs) {
+          comments.add(PostComment.fromDocumentSnapshot(commentData));
+        }
+
+        posts.insert(
+          0,
+          Post(
+            id: docRef.id,
+            authorId: docRef.data()['authorId'],
+            authorName: docRef.data()['authorName'],
+            comments: comments,
+            content: docRef.data()['content'],
+            createdAt: docRef.data()['createdAt'],
+            images: List<String>.from(docRef.data()['images']),
+            videos: List<String>.from(docRef.data()['videos']),
+            likes: List<String>.from(docRef.data()['likes'])
+                .map<PostLike>((like) => PostLike.fromJson(like))
+                .toList(),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
+    return posts;
+  }
+
+  Future<List<Post>> loadSavedPosts(
+      String gangId, String uid, List<String> savedPosts) async {
+    List<Post> posts = [];
+
+    try {
+      final postsCollection = await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .collection('posts')
+          .get();
+
+      for (final docRef in postsCollection.docs) {
+        if (savedPosts.contains(docRef.id)) {
+          final commetsCollection =
+              await docRef.reference.collection('comments').get();
+          final List<PostComment> comments = [];
+
+          for (final commentData in commetsCollection.docs) {
+            comments.add(PostComment.fromDocumentSnapshot(commentData));
+          }
+
+          posts.insert(
+            0,
+            Post(
+              id: docRef.id,
+              authorId: docRef.data()['authorId'],
+              authorName: docRef.data()['authorName'],
+              comments: comments,
+              content: docRef.data()['content'],
+              createdAt: docRef.data()['createdAt'],
+              images: List<String>.from(docRef.data()['images']),
+              videos: List<String>.from(docRef.data()['videos']),
+              likes: List<String>.from(docRef.data()['likes'])
+                  .map<PostLike>((like) => PostLike.fromJson(like))
+                  .toList(),
+            ),
+          );
+        }
       }
     } catch (e) {
       print(e);
@@ -91,28 +180,6 @@ class PostsDB {
         );
         _videosUrls.add(videoUrl);
       }
-
-      // for (int i = 0; i < images.length; i++) {
-      //   final imageLocation = _firebaseStorage
-      //       .ref('gangs')
-      //       .child(gangId)
-      //       .child('posts')
-      //       .child(docRef.id)
-      //       .child('$i');
-      //   await imageLocation.putFile(images[i]);
-      //   _imagesUrls.add(await imageLocation.getDownloadURL());
-      // }
-
-      // for (int i = images.length; i < (images.length + videos.length); i++) {
-      //   final videoLocation = _firebaseStorage
-      //       .ref('gangs')
-      //       .child(gangId)
-      //       .child('posts')
-      //       .child(docRef.id)
-      //       .child('$i');
-      //   await videoLocation.putFile(videos[i - images.length]);
-      //   _videosUrls.add(await videoLocation.getDownloadURL());
-      // }
 
       await docRef.update({
         'images': _imagesUrls,

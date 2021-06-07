@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final _currentGang = Provider.of<GangState>(context, listen: false);
     if (_currentGang != null)
       Provider.of<PostsFeed>(context, listen: false)
-          .loadPosts(_currentGang.gang.id);
+          .loadAllPosts(_currentGang.gang.id);
   }
 
   @override
@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () => Provider.of<PostsFeed>(context, listen: false)
-            .loadPosts(_currentGang.gang.id),
+            .loadAllPosts(_currentGang.gang.id),
         child: Scrollbar(
           thickness: 6,
           child: ListView(
