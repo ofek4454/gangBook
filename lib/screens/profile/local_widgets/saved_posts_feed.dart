@@ -57,20 +57,26 @@ class _SavedPostsFeedState extends State<SavedPostsFeed> {
               )
             ],
           );
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          shrinkWrap: true,
-          primary: false,
-          itemCount: postsFeed.posts.length,
-          itemBuilder: (listContext, index) {
-            final post = postsFeed.posts[index];
-            return ChangeNotifierProvider<PostState>(
-              key: ValueKey(post.id),
-              create: (providerContext) =>
-                  PostState(post, user, _currentGang.gang.id),
-              child: PostItem(),
-            );
-          },
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: CustomScrollView(
+            slivers: [
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    final post = postsFeed.posts[index];
+                    return ChangeNotifierProvider<PostState>(
+                      key: ValueKey(post.id),
+                      create: (providerContext) =>
+                          PostState(post, user, _currentGang.gang.id),
+                      child: PostItem(),
+                    );
+                  },
+                  childCount: postsFeed.posts.length,
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
