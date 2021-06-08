@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/screens/gang_join_requests/gang_join_requests_screen.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
 import 'package:gangbook/screens/meets_history/history_screen.dart';
@@ -166,16 +167,23 @@ class _AppDrawerState extends State<AppDrawer> {
                       child: Column(
                         children: [
                           CircleAvatar(
+                            backgroundImage: user.profileImageUrl == null
+                                ? null
+                                : NetworkImage(user.profileImageUrl),
                             backgroundColor: Theme.of(context).canvasColor,
                             radius: MediaQuery.of(context).size.width * 0.1,
-                            child: Text(
-                              NameInitials().getInitials(user.fullName),
-                              style: TextStyle(
-                                color: Theme.of(context).secondaryHeaderColor,
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.07,
-                              ),
-                            ),
+                            child: user.profileImageUrl != null
+                                ? null
+                                : Text(
+                                    NameInitials().getInitials(user.fullName),
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .secondaryHeaderColor,
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.07,
+                                    ),
+                                  ),
                           ),
                           //SizedBox(width: 15),
                           Text(
@@ -285,6 +293,24 @@ class _AppDrawerState extends State<AppDrawer> {
                             style: textStyle,
                           ),
                         ),
+                        if (user.uid == gangState?.gang?.leader)
+                          ListTile(
+                            onTap: () {
+                              if (_currentPage.runtimeType
+                                  is GangJoinRequestsScreen)
+                                openDrawer();
+                              else
+                                changePage(GangJoinRequestsScreen(openDrawer));
+                            },
+                            leading: Icon(
+                              Icons.people,
+                              color: Colors.white,
+                            ),
+                            title: Text(
+                              'Join requests',
+                              style: textStyle,
+                            ),
+                          ),
                         ListTile(
                           onTap: () => _leaveGang(user),
                           leading: Icon(

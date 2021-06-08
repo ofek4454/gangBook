@@ -53,8 +53,20 @@ class CommentsFeed extends StatelessWidget {
               final bool doIlike = comments[i].doILike(user.uid);
               return ListTile(
                 leading: CircleAvatar(
+                  backgroundImage: user.profileImageUrl == null
+                      ? null
+                      : NetworkImage(user.profileImageUrl),
+                  backgroundColor: Theme.of(context).canvasColor,
                   radius: 20,
-                  child: Text(NameInitials().getInitials(comments[i].name)),
+                  child: user.profileImageUrl != null
+                      ? null
+                      : Text(
+                          NameInitials().getInitials(user.fullName),
+                          style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor,
+                            fontSize: MediaQuery.of(context).size.width * 0.07,
+                          ),
+                        ),
                 ),
                 title: RichText(
                   text: TextSpan(

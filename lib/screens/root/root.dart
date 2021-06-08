@@ -5,6 +5,7 @@ import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/drawer/app_drawer.dart';
 import 'package:gangbook/screens/login/login_screen.dart';
 import 'package:gangbook/screens/not_in_gang/not_in_gang_screen.dart';
+import 'package:gangbook/screens/requested_to_join/requested_to_join_screen.dart';
 import 'package:gangbook/screens/splash/splash_screen.dart';
 import 'package:gangbook/services/database_streams.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
@@ -70,7 +71,11 @@ class LoggedIn extends StatelessWidget {
       return SplashScreen();
     }
     if (currentUser.user.gangId == null) {
-      return NotInGangScreeen();
+      if (currentUser.user.gangJoinRequest != null) {
+        return RequestedToJoinScreen();
+      } else {
+        return NotInGangScreeen();
+      }
     } else {
       return StreamProvider<GangState>.value(
         initialData: null,

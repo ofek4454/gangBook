@@ -8,6 +8,9 @@ class GangModel {
   List<GangMember> members;
   Timestamp createdAt;
   List<String> meetIds;
+  List<String> gangJoinRequest;
+
+  bool isPrivate;
 
   GangModel({
     this.id,
@@ -16,6 +19,8 @@ class GangModel {
     this.members,
     this.createdAt,
     this.meetIds,
+    this.isPrivate,
+    this.gangJoinRequest,
   });
 
   GangModel.fromDocumentSnapshot(DocumentSnapshot doc) {
@@ -27,5 +32,7 @@ class GangModel {
         .toList();
     this.createdAt = doc.data()['createdAt'];
     this.meetIds = List<String>.from(doc.data()['meetIds']);
+    this.isPrivate = doc.data()['isPrivate'] ?? false;
+    this.gangJoinRequest = List<String>.from(doc.data()['JoinRequests'] ?? []);
   }
 }

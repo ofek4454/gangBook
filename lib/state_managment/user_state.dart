@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/services/cloudinary_requests.dart';
 import 'package:gangbook/services/user_db.dart';
 
 class UserState {
@@ -18,5 +21,12 @@ class UserState {
 
   void unSavePost(String postId) async {
     await UserDB().unSavePost(_user.uid, postId);
+  }
+
+  Future<void> changeProfileImage(File image) async {
+    final imageUrl =
+        await CloudinaryRequests().uploadUserProfileImage(image, _user.uid);
+
+    await UserDB().updateProfileImage(_user.uid, imageUrl);
   }
 }

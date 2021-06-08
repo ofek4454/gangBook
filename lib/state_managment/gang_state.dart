@@ -11,6 +11,30 @@ class GangState {
 
   GangModel get gang => _gang;
 
+  Future<String> denieJoinRequest(String uid) async {
+    String retVal = 'error';
+    try {
+      await GangDB().denieJoinRequest(_gang.id, uid);
+
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> approveJoinRequest(String uid) async {
+    String retVal = 'error';
+    try {
+      await GangDB().approveRequestToJoinGang(_gang.id, uid);
+
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
   Future<String> leaveGang(UserModel user) async {
     String retVal = 'error';
     try {

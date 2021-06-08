@@ -194,8 +194,20 @@ class _UploadPostFieldState extends State<UploadPostField> {
             Row(
               children: [
                 CircleAvatar(
+                  backgroundImage: user.profileImageUrl == null
+                      ? null
+                      : NetworkImage(user.profileImageUrl),
+                  backgroundColor: Theme.of(context).canvasColor,
                   radius: fieldHeight * 0.25,
-                  child: Text(NameInitials().getInitials(user.fullName)),
+                  child: user.profileImageUrl != null
+                      ? null
+                      : Text(
+                          NameInitials().getInitials(user.fullName),
+                          style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor,
+                            fontSize: MediaQuery.of(context).size.width * 0.07,
+                          ),
+                        ),
                 ),
                 SizedBox(width: 10),
                 Expanded(

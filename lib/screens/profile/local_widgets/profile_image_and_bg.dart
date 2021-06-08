@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/state_managment/user_state.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ProfileImageAndBG extends StatelessWidget {
@@ -7,14 +11,55 @@ class ProfileImageAndBG extends StatelessWidget {
 
   ProfileImageAndBG(this.picRadius);
 
+  Future<File> chooseImage(BuildContext context) async {
+    final picker = ImagePicker();
+    final pickedImage = await showDialog<PickedFile>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Choose image source'),
+        actions: [
+          FlatButton.icon(
+            icon: Icon(Icons.photo_library),
+            label: Text('Gallery'),
+            onPressed: () async {
+              final photo = await picker.getImage(source: ImageSource.gallery);
+              Navigator.of(ctx).pop(photo);
+            },
+          ),
+          FlatButton.icon(
+            icon: Icon(Icons.camera_alt),
+            label: Text('Camera'),
+            onPressed: () async {
+              final photo = await picker.getImage(source: ImageSource.camera);
+              Navigator.of(ctx).pop(photo);
+            },
+          )
+        ],
+      ),
+    );
+
+    if (pickedImage == null) {
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No image selected please try again'),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      );
+      return null;
+    }
+    return File(pickedImage.path);
+  }
+
   @override
   Widget build(BuildContext context) {
     final userState = Provider.of<UserState>(context);
+    bool isLoading = false;
+    bool isEditing = false;
+    File selectedImage;
 
     return Container(
-      //height: picRadius,
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: picRadius * 0.25),
+      margin: EdgeInsets.only(bottom: picRadius * 0.55),
       child: Stack(
         alignment: Alignment.bottomCenter,
         overflow: Overflow.visible,
@@ -25,42 +70,108 @@ class ProfileImageAndBG extends StatelessWidget {
               color: Theme.of(context).secondaryHeaderColor,
             ),
           ),
-          Positioned(
-            //bottom: picRadius * -0.3,
-            bottom: picRadius * 0.2,
-            child: InkWell(
-              onTap: () {},
-              child: ClipOval(
-                child: Container(
-                  width: picRadius * 2,
-                  height: picRadius * 2,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      userState.user.profileImageUrl == null
-                          ? Image.asset(
-                              'assets/images/person_placeholder.png',
-                              fit: BoxFit.cover,
-                              height: double.infinity,
+          StatefulBuilder(
+            builder: (context, setState) {
+              return Positioned(
+                bottom: picRadius * 0.2,
+                child: ClipOval(
+                  child: Container(
+                    width: picRadius * 2,
+                    height: picRadius * 2,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        userState.user.profileImageUrl == null &&
+                                selectedImage == null
+                            ? Image.asset(
+                                'assets/images/person_placeholder.png',
+                                fit: BoxFit.cover,
+                                height: double.infinity,
+                                width: double.infinity,
+                              )
+                            : selectedImage == null
+                                ? FadeInImage(
+                                    placeholder: AssetImage(
+                                        'assets/images/person_placeholder.png'),
+                                    image: NetworkImage(
+                                        userState.user.profileImageUrl),
+                                    fit: BoxFit.cover,
+                                    height: double.infinity,
+                                    width: double.infinity,
+                                  )
+                                : Image.file(
+                                    selectedImage,
+                                    fit: BoxFit.cover,
+                                    height: double.infinity,
+                                    width: double.infinity,
+                                  ),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () async {
+                              if (isEditing) {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                await Provider.of<UserState>(context,
+                                        listen: false)
+                                    .changeProfileImage(selectedImage);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              } else {
+                                selectedImage = await chooseImage(context);
+                                setState(() {
+                                  isEditing = !isEditing;
+                                });
+                              }
+                            },
+                            splashColor: Theme.of(context).secondaryHeaderColor,
+                            child: Container(
+                              color: Colors.white54,
+                              height: picRadius * 0.4,
                               width: double.infinity,
-                            )
-                          : FadeInImage(
-                              placeholder: AssetImage(
-                                  'assets/images/person_placeholder.png'),
-                              image:
-                                  NetworkImage(userState.user.profileImageUrl),
-                              fit: BoxFit.cover,
-                              height: double.infinity,
-                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: FittedBox(
+                                child: isEditing
+                                    ? Text(
+                                        'Save',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      )
+                                    : Text(
+                                        'Edit',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                              ),
                             ),
-                    ],
+                          ),
+                        ),
+                        if (isLoading)
+                          Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color:
+                                  Theme.of(context).hintColor.withOpacity(0.25),
+                            ),
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           )
         ],
       ),

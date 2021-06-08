@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
@@ -8,6 +10,7 @@ class UserModel {
   String gangId;
   List<String> savedPosts;
   String profileImageUrl;
+  String gangJoinRequest;
 
   UserModel(
       {this.uid,
@@ -16,7 +19,8 @@ class UserModel {
       this.createdAt,
       this.gangId,
       this.savedPosts,
-      this.profileImageUrl});
+      this.profileImageUrl,
+      this.gangJoinRequest});
 
   UserModel.fromDocumentSnapshot(DocumentSnapshot doc) {
     this.uid = doc.id;
@@ -26,5 +30,13 @@ class UserModel {
     this.gangId = doc.data()['gangId'];
     this.savedPosts = List<String>.from(doc.data()['savedPosts'] ?? []);
     this.profileImageUrl = doc.data()['profileImageUrl'];
+    this.gangJoinRequest = doc.data()['gangJoinRequest'];
+  }
+
+  String nameAndIdJson() {
+    return json.encode({
+      'name': this.fullName,
+      'uid': this.uid,
+    });
   }
 }

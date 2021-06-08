@@ -87,9 +87,25 @@ class PostItem extends StatelessWidget {
                       Row(
                         children: [
                           CircleAvatar(
+                            backgroundImage: userState.user.profileImageUrl ==
+                                    null
+                                ? null
+                                : NetworkImage(userState.user.profileImageUrl),
+                            backgroundColor: Theme.of(context).canvasColor,
                             radius: fieldHeight * 0.3,
-                            child: Text(
-                                NameInitials().getInitials(post.authorName)),
+                            child: userState.user.profileImageUrl != null
+                                ? null
+                                : Text(
+                                    NameInitials()
+                                        .getInitials(userState.user.fullName),
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .secondaryHeaderColor,
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.07,
+                                    ),
+                                  ),
                           ),
                           SizedBox(width: 10),
                           Text(
@@ -220,7 +236,8 @@ class PostItem extends StatelessWidget {
                           onTap: () {
                             showModalBottomSheet(
                               context: context,
-                              builder: (ctx) => LikesFeed(post.likes),
+                              builder: (ctx) =>
+                                  LikesFeed(post.likes, userState.user),
                             );
                           },
                           child: Padding(
