@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'dart:math';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
@@ -19,9 +23,10 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
   Widget _currentPage;
   bool isOpen = false;
-  Duration duration = Duration(milliseconds: 500);
+  Duration duration = Duration(milliseconds: 300);
   double value = 0;
 
   @override
@@ -31,6 +36,28 @@ class _AppDrawerState extends State<AppDrawer> {
       create: (context) => PostsFeed(),
       child: HomeScreen(openDrawer),
     );
+  }
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    final gang = Provider.of<GangState>(context, listen: false);
+    if (gang != null && gang.gang != null) {
+      print('subscribe to : ${gang.gang.id}');
+      FirebaseMessaging.instance.subscribeToTopic(gang.gang.id).then((_) {
+        print('Successfully subscribed to topic');
+      }).catchError((error) {
+        print('Error subscribing to topic:' + error);
+      });
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        ScaffoldMessenger.of(_scaffoldkey.currentContext).showSnackBar(
+          SnackBar(
+            content: Text('new meet is schedulled! check in home page'),
+          ),
+        );
+      });
+    }
   }
 
   void openDrawer() {
@@ -111,6 +138,7 @@ class _AppDrawerState extends State<AppDrawer> {
       fontWeight: FontWeight.w500,
     );
     return Scaffold(
+      key: _scaffoldkey,
       body: Stack(
         children: [
           Container(
@@ -131,41 +159,45 @@ class _AppDrawerState extends State<AppDrawer> {
               width: MediaQuery.of(context).size.width * 0.6,
               child: Column(
                 children: [
-                  DrawerHeader(
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Theme.of(context).canvasColor,
-                          radius: MediaQuery.of(context).size.width * 0.1,
-                          child: Text(
-                            NameInitials().getInitials(user.fullName),
-                            style: TextStyle(
-                              color: Theme.of(context).secondaryHeaderColor,
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.07,
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.23,
+                    child: DrawerHeader(
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Theme.of(context).canvasColor,
+                            radius: MediaQuery.of(context).size.width * 0.1,
+                            child: Text(
+                              NameInitials().getInitials(user.fullName),
+                              style: TextStyle(
+                                color: Theme.of(context).secondaryHeaderColor,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.07,
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: 15),
-                        Text(
-                          user.fullName,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 30,
-                          ),
-                        ),
-                        FittedBox(
-                          child: Text(
-                            '"${gangState?.gang?.name}"',
+                          //SizedBox(width: 15),
+                          Text(
+                            user.fullName,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: 30,
                             ),
                           ),
-                        ),
-                      ],
+                          FittedBox(
+                            child: Text(
+                              '"${gangState?.gang?.name}"',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   Expanded(

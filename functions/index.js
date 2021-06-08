@@ -20,4 +20,16 @@ exports.deletePassedMeets = functions.pubsub.schedule("00 00 * * *").onRun(async
     });
 });
 
+exports.notifyOnMeetCreation = functions.firestore.document("gangs/{gang}/meets/{meet}")
+.onCreate((snapshot, context)=>{
+    const gangDoc = snapshot.ref.parent.parent;
+    console.log("called gangId: " + gangDoc.id + " createdMeetId: " + snapshot.id);
+    return admin.messaging().sendToTopic(gangDoc.id ,
+    {notification: {
+        title: "new meet is schedulled in your gang!", 
+        body: snapshot.data().title, 
+        clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+    } 
+});
 
+});

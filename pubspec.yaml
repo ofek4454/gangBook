@@ -39,6 +39,8 @@ dependencies:
   video_player: ^2.1.1
   share: ^2.0.4
   cloudinary_sdk: ^3.0.0+6
+  firebase_messaging: ^10.0.1
+  flutter_local_notifications: ^5.0.0
 
 dev_dependencies:
   flutter_test:
