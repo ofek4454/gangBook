@@ -204,4 +204,19 @@ class GangDB {
     }
     return retVal;
   }
+
+  Future<String> changeGangPrivacyMode(String gangId, bool isPrivate) async {
+    String retVal = 'error';
+    try {
+      await _firestore
+          .collection('gangs')
+          .doc(gangId)
+          .update({'isPrivate': isPrivate});
+
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
 }

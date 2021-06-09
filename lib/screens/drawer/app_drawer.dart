@@ -1,10 +1,7 @@
-import 'dart:io';
 import 'dart:math';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/gang_join_requests/gang_join_requests_screen.dart';
 import 'package:gangbook/screens/home/home_screen.dart';

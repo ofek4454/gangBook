@@ -15,15 +15,39 @@ class RequestedToJoinScreen extends StatelessWidget {
           return SplashScreen();
         } else {
           return Scaffold(
+            appBar: AppBar(
+              elevation: 0,
+              title: TextButton.icon(
+                onPressed: () {
+                  GangDB().denieJoinRequest(
+                    userState.user.gangJoinRequest,
+                    userState.user.uid,
+                  );
+                },
+                icon: Icon(Icons.cancel),
+                label: Text('Cancel request'),
+                style: ButtonStyle(
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                ),
+              ),
+            ),
             body: Container(
               width: double.infinity,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('You request to join "${snapshot.data}" gang'),
+                  Text(
+                    'You request to join "${snapshot.data}"',
+                    style: Theme.of(context).textTheme.headline6,
+                    textAlign: TextAlign.center,
+                  ),
                   SizedBox(height: 10),
-                  Text('Wait for the gang leader to approve you request'),
+                  Text(
+                    'Wait for the gang leader to approve your request',
+                    style: Theme.of(context).textTheme.headline6,
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               ),
             ),

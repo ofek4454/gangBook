@@ -11,6 +11,18 @@ class GangState {
 
   GangModel get gang => _gang;
 
+  Future<String> chaneGangPrivacyMode(bool isPrivate) async {
+    String retVal = 'error';
+    try {
+      await GangDB().changeGangPrivacyMode(_gang.id, isPrivate);
+
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
   Future<String> denieJoinRequest(String uid) async {
     String retVal = 'error';
     try {
