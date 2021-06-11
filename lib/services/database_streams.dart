@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gangbook/models/chat_model.dart';
 import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/state_managment/chat_state.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/meet_state.dart';
 import 'package:gangbook/state_managment/user_state.dart';
@@ -33,5 +35,15 @@ class DBStreams {
         .doc(meetId)
         .snapshots()
         .map((doc) => MeetState(MeetModel.fromDocumentSnapshot(doc), gangId));
+  }
+
+  Stream<ChatState> getChat(String gangId) {
+    return _firestore
+        .collection('gangs')
+        .doc(gangId)
+        .collection('chat')
+        .snapshots()
+        .map((chatCollection) =>
+            ChatState(ChatModel.fromQuerySnapshot(chatCollection)));
   }
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/screens/chat/chat_screen.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_dialog.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/post_item.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/upload_post_field.dart';
+import 'package:gangbook/services/database_streams.dart';
+import 'package:gangbook/state_managment/chat_state.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/post_state.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
@@ -30,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final _currentGang = Provider.of<GangState>(context);
-    final user = Provider.of<UserState>(context).user;
+    final userState = Provider.of<UserState>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -38,7 +41,20 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.messenger_outline_rounded),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => StreamProvider<ChatState>.value(
+                    value: DBStreams().getChat(_currentGang.gang.id),
+                    initialData: null,
+                    child: Provider<UserState>.value(
+                      value: userState,
+                      child: ChatScreen(),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ],
         leading: IconButton(
@@ -71,8 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       final post = postsFeed.posts[index];
                       return ChangeNotifierProvider<PostState>(
                         key: ValueKey(post.id),
-                        create: (providerContext) =>
-                            PostState(post, user, _currentGang.gang.id),
+                        create: (providerContext) => PostState(
+                            post, userState.user, _currentGang.gang.id),
                         child: PostItem(),
                       );
                     },
