@@ -9,16 +9,18 @@ class ChatScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Gang chat'),
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          Expanded(
-            child: Messages(),
-          ),
-          MessageField(),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            Expanded(
+              child: Messages(),
+            ),
+            MessageField(),
+          ],
+        ),
       ),
     );
   }

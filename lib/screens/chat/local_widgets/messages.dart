@@ -12,6 +12,8 @@ class Messages extends StatelessWidget {
           return Center(child: CircularProgressIndicator.adaptive());
         if (chatState.chat.messages.isEmpty) return Container();
         return ListView.builder(
+          padding: EdgeInsets.only(top: 20),
+          reverse: true,
           itemCount: chatState.chat.messages.length,
           itemBuilder: (lvCtx, i) => MessageBubble(chatState.chat.messages[i]),
         );

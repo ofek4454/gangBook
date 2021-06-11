@@ -41,20 +41,22 @@ class _AppDrawerState extends State<AppDrawer> {
     super.didChangeDependencies();
     final gang = Provider.of<GangState>(context, listen: false);
     if (gang != null && gang.gang != null) {
-      print('subscribe to : ${gang.gang.id}');
-      FirebaseMessaging.instance.subscribeToTopic(gang.gang.id).then((_) {
-        print('Successfully subscribed to topic');
-      }).catchError((error) {
-        print('Error subscribing to topic:' + error);
-      });
+      FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Meets");
+      FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Chat");
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        ScaffoldMessenger.of(_scaffoldkey.currentContext).showSnackBar(
-          SnackBar(
-            content: Text('new meet is schedulled! check in home page'),
-          ),
-        );
-      });
+      FirebaseMessaging.onMessage.listen(
+        (RemoteMessage message) {
+          if (message.from.contains('Chat')) {
+            //Do something
+          } else if (message.from.contains('Meets')) {
+            ScaffoldMessenger.of(_scaffoldkey.currentContext).showSnackBar(
+              SnackBar(
+                content: Text('new meet is schedulled! check in home page'),
+              ),
+            );
+          }
+        },
+      );
     }
   }
 

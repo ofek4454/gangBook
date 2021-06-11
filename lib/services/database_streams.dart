@@ -42,6 +42,7 @@ class DBStreams {
         .collection('gangs')
         .doc(gangId)
         .collection('chat')
+        .orderBy('createdAt', descending: true)
         .snapshots()
         .map((chatCollection) =>
             ChatState(ChatModel.fromQuerySnapshot(chatCollection)));

@@ -24,12 +24,25 @@ exports.notifyOnMeetCreation = functions.firestore.document("gangs/{gang}/meets/
 .onCreate((snapshot, context)=>{
     const gangDoc = snapshot.ref.parent.parent;
     console.log("called gangId: " + gangDoc.id + " createdMeetId: " + snapshot.id);
-    return admin.messaging().sendToTopic(gangDoc.id ,
+    return admin.messaging().sendToTopic(gangDoc.id+"Meets" ,
     {notification: {
         title: "new meet is schedulled in your gang!", 
         body: snapshot.data().title, 
         clickAction: 'FLUTTER_NOTIFICATION_CLICK',
     } 
 });
+});
 
+exports.notifyOnMessageCreation = functions.firestore.document("gangs/{gang}/chat/{message}")
+.onCreate(async(snapshot, context)=>{
+    const gangDoc = snapshot.ref.parent.parent;
+    const gang = await gangDoc.get();
+    console.log("called gangId: " + gangDoc.id + " createdMessageId: " + snapshot.id);
+    return admin.messaging().sendToTopic(gangDoc.id+"Chat" ,
+    {notification: {
+        title: gang.data().name, 
+        body: snapshot.data().message,
+        clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+    }
+}); 
 });
