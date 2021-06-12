@@ -193,6 +193,23 @@ class GangDB {
     return retVal;
   }
 
+  Future<String> kikOutFromGang({String gangId, GangMember member}) async {
+    String retVal = 'error';
+    try {
+      await _firestore.collection('gangs').doc(gangId).update({
+        'members': FieldValue.arrayRemove([member.toJson()]),
+      });
+      await _firestore.collection('users').doc(member.uid).update({
+        'gangId': null,
+      });
+
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
   Future<String> getGangName(String gangId) async {
     String retVal = 'error';
     try {
@@ -213,6 +230,19 @@ class GangDB {
           .doc(gangId)
           .update({'isPrivate': isPrivate});
 
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
+
+  Future<String> updateGangImage(String gangId, String imageUrl) async {
+    String retVal = 'error';
+    try {
+      await _firestore.collection('gangs').doc(gangId).update({
+        'gangImage': imageUrl,
+      });
       retVal = 'success';
     } catch (e) {
       print(e);

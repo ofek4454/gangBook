@@ -24,6 +24,9 @@ class UserState {
   }
 
   Future<void> changeProfileImage(File image) async {
+    if (_user.profileImageUrl != null) {
+      await CloudinaryRequests().deleteImage(_user.profileImageUrl);
+    }
     final imageUrl =
         await CloudinaryRequests().uploadUserProfileImage(image, _user.uid);
 
