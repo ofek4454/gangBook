@@ -7,6 +7,8 @@ import 'package:gangbook/state_managment/user_state.dart';
 import 'package:provider/provider.dart';
 
 class UserPostsFeed extends StatefulWidget {
+  final String uid;
+  UserPostsFeed({this.uid});
   @override
   _UserPostsFeedState createState() => _UserPostsFeedState();
 }
@@ -18,8 +20,8 @@ class _UserPostsFeedState extends State<UserPostsFeed> {
     final _userState = Provider.of<UserState>(context, listen: false);
 
     if (_currentGang != null)
-      Provider.of<PostsFeed>(context, listen: false)
-          .loadUsersPosts(_currentGang.gang.id, _userState.user.uid);
+      Provider.of<PostsFeed>(context, listen: false).loadUsersPosts(
+          _currentGang.gang.id, widget.uid ?? _userState.user.uid);
   }
 
   @override
@@ -34,7 +36,9 @@ class _UserPostsFeedState extends State<UserPostsFeed> {
         if (postsFeed.posts.isEmpty)
           return Center(
             child: Text(
-              'You haven\'t post yet!',
+              widget.uid == null
+                  ? 'You haven\'t post yet!'
+                  : 'This user hasn\'t post yet',
               style: Theme.of(context).textTheme.headline6,
             ),
           );
@@ -47,6 +51,7 @@ class _UserPostsFeedState extends State<UserPostsFeed> {
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
                     final post = postsFeed.posts[index];
+
                     return ChangeNotifierProvider<PostState>(
                       key: ValueKey(post.id),
                       create: (providerContext) =>

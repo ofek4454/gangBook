@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/screens/gang/gang_screen.dart';
 import 'package:gangbook/screens/gang_join_requests/gang_join_requests_screen.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
@@ -233,6 +234,22 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                         ListTile(
                           onTap: () {
+                            if (_currentPage.runtimeType is GangScreen)
+                              openDrawer();
+                            else
+                              changePage(GangScreen(openDrawer));
+                          },
+                          leading: Icon(
+                            Icons.group,
+                            color: Colors.white,
+                          ),
+                          title: Text(
+                            'My gang',
+                            style: textStyle,
+                          ),
+                        ),
+                        ListTile(
+                          onTap: () {
                             if (_currentPage.runtimeType is HistoryScreen)
                               openDrawer();
                             else
@@ -302,7 +319,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                 changePage(GangJoinRequestsScreen(openDrawer));
                             },
                             leading: Icon(
-                              Icons.people,
+                              Icons.group_add,
                               color: Colors.white,
                             ),
                             title: Text(
@@ -313,7 +330,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         ListTile(
                           onTap: () => _leaveGang(user),
                           leading: Icon(
-                            Icons.people_alt,
+                            Icons.directions_walk_outlined,
                             color: Colors.red,
                           ),
                           title: Text(

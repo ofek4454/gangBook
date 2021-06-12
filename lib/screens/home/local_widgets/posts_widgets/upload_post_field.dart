@@ -151,6 +151,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
         textController.text,
         images,
         videos,
+        user.profileImageUrl,
       );
       if (post == null) {
         ScaffoldMessenger.of(context).showSnackBar(

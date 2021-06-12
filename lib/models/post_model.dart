@@ -12,18 +12,34 @@ class Post {
   List<String> images;
   List<String> videos;
   Timestamp createdAt;
+  String authorImage;
 
-  Post({
-    this.id,
-    this.authorName,
-    this.authorId,
-    this.comments,
-    this.content,
-    this.images,
-    this.likes,
-    this.createdAt,
-    this.videos,
-  });
+  Post(
+      {this.id,
+      this.authorName,
+      this.authorId,
+      this.comments,
+      this.content,
+      this.images,
+      this.likes,
+      this.createdAt,
+      this.videos,
+      this.authorImage});
+
+  Post.fromDocumentSnapshot(DocumentSnapshot doc, List<PostComment> _comments) {
+    this.id = doc.id;
+    this.authorId = doc.data()['authorId'];
+    this.authorName = doc.data()['authorName'];
+    this.comments = _comments;
+    this.content = doc.data()['content'];
+    this.createdAt = doc.data()['createdAt'];
+    this.images = List<String>.from(doc.data()['images']);
+    this.videos = List<String>.from(doc.data()['videos']);
+    this.likes = List<String>.from(doc.data()['likes'])
+        .map<PostLike>((like) => PostLike.fromJson(like))
+        .toList();
+    this.authorImage = doc.data()['authorImage'];
+  }
 
   bool doILike(String uid) {
     bool retVal = false;
@@ -55,7 +71,7 @@ class PostComment {
     this.commetId = doc.id;
     this.comment = doc.data()['comment'];
     this.uid = doc.data()['uid'];
-    this.likes = List<String>.from(doc.data()['likes'])
+    this.likes = List<String>.from(doc.data()['likes'] ?? [])
         .map<PostLike>((like) => PostLike.fromJson(like))
         .toList();
     this.name = doc.data()['name'];

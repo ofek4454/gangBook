@@ -29,19 +29,7 @@ class PostsDB {
 
         posts.insert(
           0,
-          Post(
-            id: docRef.id,
-            authorId: docRef.data()['authorId'],
-            authorName: docRef.data()['authorName'],
-            comments: comments,
-            content: docRef.data()['content'],
-            createdAt: docRef.data()['createdAt'],
-            images: List<String>.from(docRef.data()['images']),
-            videos: List<String>.from(docRef.data()['videos']),
-            likes: List<String>.from(docRef.data()['likes'])
-                .map<PostLike>((like) => PostLike.fromJson(like))
-                .toList(),
-          ),
+          Post.fromDocumentSnapshot(docRef, comments),
         );
       }
     } catch (e) {
@@ -73,19 +61,7 @@ class PostsDB {
 
         posts.insert(
           0,
-          Post(
-            id: docRef.id,
-            authorId: docRef.data()['authorId'],
-            authorName: docRef.data()['authorName'],
-            comments: comments,
-            content: docRef.data()['content'],
-            createdAt: docRef.data()['createdAt'],
-            images: List<String>.from(docRef.data()['images']),
-            videos: List<String>.from(docRef.data()['videos']),
-            likes: List<String>.from(docRef.data()['likes'])
-                .map<PostLike>((like) => PostLike.fromJson(like))
-                .toList(),
-          ),
+          Post.fromDocumentSnapshot(docRef, comments),
         );
       }
     } catch (e) {
@@ -117,19 +93,7 @@ class PostsDB {
 
           posts.insert(
             0,
-            Post(
-              id: docRef.id,
-              authorId: docRef.data()['authorId'],
-              authorName: docRef.data()['authorName'],
-              comments: comments,
-              content: docRef.data()['content'],
-              createdAt: docRef.data()['createdAt'],
-              images: List<String>.from(docRef.data()['images']),
-              videos: List<String>.from(docRef.data()['videos']),
-              likes: List<String>.from(docRef.data()['likes'])
-                  .map<PostLike>((like) => PostLike.fromJson(like))
-                  .toList(),
-            ),
+            Post.fromDocumentSnapshot(docRef, comments),
           );
         }
       }
@@ -139,8 +103,14 @@ class PostsDB {
     return posts;
   }
 
-  Future<Post> uploadPost(String gangId, String authorName, String authorId,
-      String content, List<File> images, List<File> videos) async {
+  Future<Post> uploadPost(
+      String gangId,
+      String authorName,
+      String authorId,
+      String content,
+      List<File> images,
+      List<File> videos,
+      String authorImage) async {
     Post retVal;
     List<String> _imagesUrls = [];
     List<String> _videosUrls = [];
@@ -159,6 +129,7 @@ class PostsDB {
         'videos': [],
         'createdAt': now,
         'likes': [],
+        'authorImage': authorImage
       });
 
       for (int i = 0; i < images.length; i++) {
@@ -196,6 +167,7 @@ class PostsDB {
         images: _imagesUrls,
         videos: _videosUrls,
         likes: [],
+        authorImage: authorImage,
       );
     } catch (e) {
       print(e);

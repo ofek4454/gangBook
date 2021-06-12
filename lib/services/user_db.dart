@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserDB {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<Map<String, String>> getUserName(String uid) async {
+  Future<Map<String, String>> getUserData(String uid) async {
     Map<String, String> retVal = {};
     try {
       final userDoc = await _firestore.collection('users').doc(uid).get();

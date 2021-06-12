@@ -67,7 +67,7 @@ class GangJoinRequestsScreen extends StatelessWidget {
                     itemBuilder: (context, i) {
                       return FutureBuilder<Map<String, String>>(
                           future: UserDB()
-                              .getUserName(gangState.gang.joinRequests[i]),
+                              .getUserData(gangState.gang.joinRequests[i]),
                           builder: (context, snapshot) => UserRequestField(
                                 uid: gangState.gang.joinRequests[i],
                                 userData: snapshot.data,

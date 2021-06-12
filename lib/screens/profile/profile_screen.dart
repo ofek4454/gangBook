@@ -58,11 +58,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                   style: TextStyle(color: Colors.white),
                 ),
                 centerTitle: true,
-                leading: IconButton(
-                  color: Colors.white,
-                  icon: Icon(Icons.menu_rounded),
-                  onPressed: () => widget.openDrawer(),
-                ),
+                leading: widget.openDrawer == null
+                    ? null
+                    : IconButton(
+                        color: Colors.white,
+                        icon: Icon(Icons.menu_rounded),
+                        onPressed: () => widget.openDrawer(),
+                      ),
                 bottom: TabBar(
                   controller: tabController,
                   indicatorSize: TabBarIndicatorSize.tab,

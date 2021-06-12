@@ -47,8 +47,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) => StreamProvider<ChatState>.value(
                     value: DBStreams().getChat(_currentGang.gang.id),
                     initialData: null,
-                    child: Provider<UserState>.value(
-                      value: userState,
+                    child: MultiProvider(
+                      providers: [
+                        Provider<UserState>.value(
+                          value: userState,
+                        ),
+                        Provider<GangState>.value(
+                          value: _currentGang,
+                        )
+                      ],
                       child: ChatScreen(),
                     ),
                   ),

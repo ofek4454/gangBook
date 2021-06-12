@@ -1,37 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/post_model.dart';
 import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/screens/another_user_profile/another_user_profile_screen.dart';
+import 'package:gangbook/screens/profile/profile_screen.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/utils/names_initials.dart';
+import 'package:gangbook/widgets/user_image_bubble.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class LikesFeed extends StatelessWidget {
   final List<PostLike> likes;
-  final UserModel user;
 
-  LikesFeed(this.likes, this.user);
+  LikesFeed(this.likes);
 
   @override
   Widget build(BuildContext context) {
+    final userState = Provider.of<UserState>(context);
     return Container(
       padding: EdgeInsets.symmetric(vertical: 15),
       child: ListView.builder(
         itemCount: likes.length,
         itemBuilder: (_, i) => ListTile(
-          leading: CircleAvatar(
-            backgroundImage: user.profileImageUrl == null
-                ? null
-                : NetworkImage(user.profileImageUrl),
-            backgroundColor: Theme.of(context).canvasColor,
-            radius: 30,
-            child: user.profileImageUrl != null
-                ? null
-                : Text(
-                    NameInitials().getInitials(user.fullName),
-                    style: TextStyle(
-                      color: Theme.of(context).secondaryHeaderColor,
-                      fontSize: MediaQuery.of(context).size.width * 0.07,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (navCtx) => MultiProvider(
+                  providers: [
+                    Provider<GangState>.value(
+                      value: Provider.of<GangState>(context),
                     ),
-                  ),
+                    Provider<UserState>.value(
+                      value: Provider.of<UserState>(context),
+                    ),
+                  ],
+                  child: likes[i].uid == userState.user.uid
+                      ? ProfileScreen(null)
+                      : AnotherUserProfile(uid: likes[i].uid),
+                ),
+              ),
+            );
+          },
+          leading: UserImagebubble(
+            uid: likes[i].uid,
+            radius: 30,
+            userImageUrl: null,
+            userName: likes[i].name,
           ),
           title: Text(likes[i].name),
           trailing: Text(

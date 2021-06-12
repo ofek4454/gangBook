@@ -1,15 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/state_managment/user_state.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ProfileImageAndBG extends StatelessWidget {
+  final String imageUrl;
   final double picRadius;
+  final bool isEditable;
 
-  ProfileImageAndBG(this.picRadius);
+  ProfileImageAndBG(this.picRadius, {this.imageUrl, this.isEditable = true});
 
   Future<File> chooseImage(BuildContext context) async {
     final picker = ImagePicker();
@@ -52,14 +53,16 @@ class ProfileImageAndBG extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userState = Provider.of<UserState>(context);
+    final UserState userState =
+        isEditable ? Provider.of<UserState>(context) : null;
     bool isLoading = false;
     bool isEditing = false;
     File selectedImage;
+    double bottomMargin = isEditable ? picRadius * 0.55 : 0;
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: picRadius * 0.55),
+      margin: EdgeInsets.only(bottom: bottomMargin),
       child: Stack(
         alignment: Alignment.bottomCenter,
         overflow: Overflow.visible,
@@ -84,7 +87,7 @@ class ProfileImageAndBG extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.bottomCenter,
                       children: [
-                        userState.user.profileImageUrl == null &&
+                        userState?.user?.profileImageUrl == null &&
                                 selectedImage == null
                             ? Image.asset(
                                 'assets/images/person_placeholder.png',
@@ -108,51 +111,53 @@ class ProfileImageAndBG extends StatelessWidget {
                                     height: double.infinity,
                                     width: double.infinity,
                                   ),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () async {
-                              if (isEditing) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                await Provider.of<UserState>(context,
-                                        listen: false)
-                                    .changeProfileImage(selectedImage);
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              } else {
-                                selectedImage = await chooseImage(context);
-                                setState(() {
-                                  isEditing = !isEditing;
-                                });
-                              }
-                            },
-                            splashColor: Theme.of(context).secondaryHeaderColor,
-                            child: Container(
-                              color: Colors.white54,
-                              height: picRadius * 0.4,
-                              width: double.infinity,
-                              alignment: Alignment.center,
-                              child: FittedBox(
-                                child: isEditing
-                                    ? Text(
-                                        'Save',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
+                        if (isEditable)
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () async {
+                                if (isEditing) {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  await Provider.of<UserState>(context,
+                                          listen: false)
+                                      .changeProfileImage(selectedImage);
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                } else {
+                                  selectedImage = await chooseImage(context);
+                                  setState(() {
+                                    isEditing = !isEditing;
+                                  });
+                                }
+                              },
+                              splashColor:
+                                  Theme.of(context).secondaryHeaderColor,
+                              child: Container(
+                                color: Colors.white54,
+                                height: picRadius * 0.4,
+                                width: double.infinity,
+                                alignment: Alignment.center,
+                                child: FittedBox(
+                                  child: isEditing
+                                      ? Text(
+                                          'Save',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        )
+                                      : Text(
+                                          'Edit',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                      )
-                                    : Text(
-                                        'Edit',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
                         if (isLoading)
                           Container(
                             width: double.infinity,

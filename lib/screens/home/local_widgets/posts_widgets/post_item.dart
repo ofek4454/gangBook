@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:gangbook/screens/another_user_profile/another_user_profile_screen.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/comments_feed.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/likes_feed.dart';
+import 'package:gangbook/screens/profile/profile_screen.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/post_state.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
 import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/utils/names_initials.dart';
+import 'package:gangbook/widgets/user_image_bubble.dart';
 import 'package:gangbook/widgets/whiteRoundedCard.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -84,64 +87,71 @@ class PostItem extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: userState.user.profileImageUrl ==
-                                    null
-                                ? null
-                                : NetworkImage(userState.user.profileImageUrl),
-                            backgroundColor: Theme.of(context).canvasColor,
-                            radius: fieldHeight * 0.3,
-                            child: userState.user.profileImageUrl != null
-                                ? null
-                                : Text(
-                                    NameInitials()
-                                        .getInitials(userState.user.fullName),
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .secondaryHeaderColor,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.07,
-                                    ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (navCtx) => MultiProvider(
+                                providers: [
+                                  Provider<GangState>.value(
+                                    value: Provider.of<GangState>(context),
                                   ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            post.authorName,
-                            style: Theme.of(context).textTheme.subtitle1,
-                          ),
-                          Spacer(),
-                          Text(
-                            DateFormat('HH:mm dd/MM')
-                                .format(post.createdAt.toDate()),
-                          ),
-                          if (post.authorId == userState.user.uid)
-                            PopupMenuButton<MenuItem>(
-                              onSelected: (MenuItem value) {
-                                if (value == MenuItem.Delete) {
-                                  Provider.of<PostsFeed>(context, listen: false)
-                                      .deletePost(
-                                          post.id, userState.user.gangId);
-                                }
-                                if (value == MenuItem.Edit) {
-                                  //Edit
-                                }
-                              },
-                              icon: Icon(Icons.more_vert),
-                              itemBuilder: (ctx) => [
-                                PopupMenuItem(
-                                  child: Text('Delete'),
-                                  value: MenuItem.Delete,
-                                ),
-                                PopupMenuItem(
-                                  child: Text('Edit'),
-                                  value: MenuItem.Edit,
-                                ),
-                              ],
+                                  Provider<UserState>.value(
+                                    value: Provider.of<UserState>(context),
+                                  ),
+                                ],
+                                child: post.authorId == userState.user.uid
+                                    ? ProfileScreen(null)
+                                    : AnotherUserProfile(uid: post.authorId),
+                              ),
                             ),
-                        ],
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            UserImagebubble(
+                              radius: fieldHeight * 0.3,
+                              userName: post.authorName,
+                              userImageUrl: post.authorImage,
+                              uid: post.authorId,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              post.authorName,
+                              style: Theme.of(context).textTheme.subtitle1,
+                            ),
+                            Spacer(),
+                            Text(
+                              DateFormat('HH:mm dd/MM')
+                                  .format(post.createdAt.toDate()),
+                            ),
+                            if (post.authorId == userState.user.uid)
+                              PopupMenuButton<MenuItem>(
+                                onSelected: (MenuItem value) {
+                                  if (value == MenuItem.Delete) {
+                                    Provider.of<PostsFeed>(context,
+                                            listen: false)
+                                        .deletePost(
+                                            post.id, userState.user.gangId);
+                                  }
+                                  if (value == MenuItem.Edit) {
+                                    //Edit
+                                  }
+                                },
+                                icon: Icon(Icons.more_vert),
+                                itemBuilder: (ctx) => [
+                                  PopupMenuItem(
+                                    child: Text('Delete'),
+                                    value: MenuItem.Delete,
+                                  ),
+                                  PopupMenuItem(
+                                    child: Text('Edit'),
+                                    value: MenuItem.Edit,
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -236,8 +246,17 @@ class PostItem extends StatelessWidget {
                           onTap: () {
                             showModalBottomSheet(
                               context: context,
-                              builder: (ctx) =>
-                                  LikesFeed(post.likes, userState.user),
+                              builder: (ctx) => MultiProvider(
+                                providers: [
+                                  Provider<UserState>.value(
+                                    value: Provider.of<UserState>(context),
+                                  ),
+                                  Provider<GangState>.value(
+                                    value: Provider.of<GangState>(context),
+                                  ),
+                                ],
+                                child: LikesFeed(post.likes),
+                              ),
                             );
                           },
                           child: Padding(
@@ -264,11 +283,18 @@ class PostItem extends StatelessWidget {
                           onTap: () {
                             showModalBottomSheet(
                               context: context,
-                              builder: (ctx) => CommentsFeed(
-                                post,
-                                Provider.of<GangState>(context, listen: false)
-                                    .gang,
-                                userState.user,
+                              builder: (ctx) => MultiProvider(
+                                providers: [
+                                  Provider<UserState>.value(
+                                    value: Provider.of<UserState>(context),
+                                  ),
+                                  Provider<GangState>.value(
+                                    value: Provider.of<GangState>(context),
+                                  ),
+                                ],
+                                child: CommentsFeed(
+                                  post,
+                                ),
                               ),
                             );
                           },

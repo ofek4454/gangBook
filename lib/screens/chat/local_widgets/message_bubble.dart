@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/auth_model.dart';
 import 'package:gangbook/models/chat_model.dart';
+import 'package:gangbook/screens/another_user_profile/another_user_profile_screen.dart';
+import 'package:gangbook/screens/profile/profile_screen.dart';
+import 'package:gangbook/state_managment/gang_state.dart';
+import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/widgets/user_image_bubble.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +17,27 @@ class MessageBubble extends StatelessWidget {
   bool isSendByMe(BuildContext context) {
     final uid = Provider.of<AuthModel>(context, listen: false).uid;
     return uid == message.sender.uid;
+  }
+
+  void goToUserProfileScreen(BuildContext context, String uid) {
+    final userState = Provider.of<UserState>(context, listen: false);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (navCtx) => MultiProvider(
+          providers: [
+            Provider<GangState>.value(
+              value: Provider.of<GangState>(context),
+            ),
+            Provider<UserState>.value(
+              value: Provider.of<UserState>(context),
+            ),
+          ],
+          child: uid == userState.user.uid
+              ? ProfileScreen(null)
+              : AnotherUserProfile(uid: uid),
+        ),
+      ),
+    );
   }
 
   @override
@@ -44,12 +69,17 @@ class MessageBubble extends StatelessWidget {
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    message.sender.name,
-                    style: TextStyle(
-                      color: Theme.of(context).accentTextTheme.headline6.color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  InkWell(
+                    onTap: () =>
+                        goToUserProfileScreen(context, message.sender.uid),
+                    child: Text(
+                      message.sender.name,
+                      style: TextStyle(
+                        color:
+                            Theme.of(context).accentTextTheme.headline6.color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                   SelectableText(
@@ -81,10 +111,14 @@ class MessageBubble extends StatelessWidget {
               left: sendByMe ? -screenWidth * 0.015 : null,
               right: !sendByMe ? -screenWidth * 0.015 : null,
               top: -screenWidth * 0.015,
-              child: UserImagebubble(
-                userName: message.sender.name,
-                userImageUrl: message.sender.image,
-                radius: screenWidth * 0.05,
+              child: InkWell(
+                onTap: () => goToUserProfileScreen(context, message.sender.uid),
+                child: UserImagebubble(
+                  uid: message.sender.uid,
+                  userName: message.sender.name,
+                  userImageUrl: message.sender.image,
+                  radius: screenWidth * 0.05,
+                ),
               ),
             )
           ],
