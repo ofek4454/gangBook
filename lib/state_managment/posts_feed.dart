@@ -7,6 +7,14 @@ class PostsFeed extends ChangeNotifier {
 
   List<Post> get posts => _posts;
 
+  int get likesCounter {
+    int likes = 0;
+    _posts.forEach((post) {
+      likes += post.likes.length;
+    });
+    return likes;
+  }
+
   Future<void> loadAllPosts(String gangId) async {
     try {
       _posts = await PostsDB().loadAllPosts(gangId);

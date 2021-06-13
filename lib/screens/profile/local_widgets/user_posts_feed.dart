@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/screens/home/local_widgets/posts_widgets/post_item.dart';
+import 'package:gangbook/screens/profile/local_widgets/user_posts_counter.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/post_state.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
@@ -50,8 +51,10 @@ class _UserPostsFeedState extends State<UserPostsFeed> {
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
-                    final post = postsFeed.posts[index];
-
+                    if (index == 0) {
+                      return UserPostsCounter();
+                    }
+                    final post = postsFeed.posts[index - 1];
                     return ChangeNotifierProvider<PostState>(
                       key: ValueKey(post.id),
                       create: (providerContext) =>
@@ -59,7 +62,7 @@ class _UserPostsFeedState extends State<UserPostsFeed> {
                       child: PostItem(),
                     );
                   },
-                  childCount: postsFeed.posts.length,
+                  childCount: postsFeed.posts.length + 1,
                 ),
               ),
             ],

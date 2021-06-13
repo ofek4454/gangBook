@@ -23,6 +23,14 @@ class AnotherUserProfile extends StatelessWidget {
                 child: CircularProgressIndicator.adaptive(),
               );
             }
+            if (snapshot.data == null) {
+              return Center(
+                child: Text(
+                  'This user is not longer availible',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+              );
+            }
             return NestedScrollView(
               headerSliverBuilder: (context, value) {
                 return [
