@@ -9,12 +9,14 @@ import 'package:gangbook/screens/home/home_screen.dart';
 import 'package:gangbook/screens/invite_to_gang/invite_to_gang_screen.dart';
 import 'package:gangbook/screens/meets_history/history_screen.dart';
 import 'package:gangbook/screens/profile/profile_screen.dart';
+import 'package:gangbook/screens/settings/settings_screen.dart';
 import 'package:gangbook/services/auth.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
 import 'package:gangbook/state_managment/user_state.dart';
 import 'package:gangbook/utils/names_initials.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppDrawer extends StatefulWidget {
   @override
@@ -42,8 +44,19 @@ class _AppDrawerState extends State<AppDrawer> {
     super.didChangeDependencies();
     final gang = Provider.of<GangState>(context, listen: false);
     if (gang != null && gang.gang != null) {
-      FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Meets");
-      FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Chat");
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.containsKey('meets_notifications') &&
+          !prefs.getBool('meets_notifications')) {
+        FirebaseMessaging.instance.unsubscribeFromTopic(gang.gang.id + "Meets");
+      } else {
+        FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Meets");
+      }
+      if (prefs.containsKey('chat_notifications') &&
+          !prefs.getBool('chat_notifications')) {
+        FirebaseMessaging.instance.unsubscribeFromTopic(gang.gang.id + "Chat");
+      } else {
+        FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Chat");
+      }
 
       FirebaseMessaging.onMessage.listen(
         (RemoteMessage message) {
@@ -299,7 +312,12 @@ class _AppDrawerState extends State<AppDrawer> {
                           ),
                         ),
                         ListTile(
-                          onTap: () {},
+                          onTap: () {
+                            if (_currentPage.runtimeType is SettingsScreen)
+                              openDrawer();
+                            else
+                              changePage(SettingsScreen(openDrawer));
+                          },
                           leading: Icon(
                             Icons.settings,
                             color: Colors.white,
