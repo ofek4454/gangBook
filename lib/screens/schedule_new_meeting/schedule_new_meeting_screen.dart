@@ -46,7 +46,8 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
         meetingTime.hour,
         meetingTime.minute,
       );
-
+      final userGangMember = widget.currentGang.members
+          .firstWhere((member) => member.uid == widget.user.uid);
       final result = await MeetDB().setNewMeet(
         user: widget.user,
         title: titleController.text,
@@ -54,6 +55,7 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
         moreInfo: moreInfoController.text,
         meetingAt: Timestamp.fromDate(meetingAt),
         gang: widget.currentGang,
+        createBy: userGangMember,
       );
       if (result == 'success') {
         Navigator.of(context).pushAndRemoveUntil(

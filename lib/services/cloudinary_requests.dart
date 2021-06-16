@@ -61,7 +61,7 @@ class CloudinaryRequests {
       return null;
   }
 
-  Future<String> deleteImage(String url) async {
+  Future<String> deleteIFile(String url) async {
     final response = await cloudinary.deleteFile(url: url);
     if (response.isResultOk)
       return 'success';

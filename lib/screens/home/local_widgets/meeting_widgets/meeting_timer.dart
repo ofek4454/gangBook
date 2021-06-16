@@ -36,7 +36,7 @@ class _MeetingTimerState extends State<MeetingTimer>
   @override
   Widget build(BuildContext context) {
     return timeLeft == null
-        ? CircularProgressIndicator.adaptive()
+        ? Center(child: CircularProgressIndicator.adaptive())
         : FittedBox(
             child: Text(timeLeft),
           );

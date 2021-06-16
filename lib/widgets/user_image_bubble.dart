@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/services/user_db.dart';
 import 'package:gangbook/utils/names_initials.dart';
@@ -19,7 +20,7 @@ class UserImagebubble extends StatelessWidget {
   Widget build(BuildContext context) {
     if (userImageUrl != null) {
       return CircleAvatar(
-        backgroundImage: NetworkImage(userImageUrl),
+        backgroundImage: CachedNetworkImageProvider(userImageUrl),
         backgroundColor: Theme.of(context).canvasColor,
         radius: radius ?? 20,
       );
@@ -43,7 +44,7 @@ class UserImagebubble extends StatelessWidget {
           return CircleAvatar(
             backgroundImage: snapshot.data['imageUrl'] == null
                 ? null
-                : NetworkImage(snapshot.data['imageUrl']),
+                : CachedNetworkImageProvider(snapshot.data['imageUrl']),
             backgroundColor: Theme.of(context).canvasColor,
             radius: radius ?? 20,
             child: snapshot.data['imageUrl'] != null

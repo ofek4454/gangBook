@@ -34,7 +34,7 @@ class EvetMembersArrivingList extends StatelessWidget {
               fontSize: 20,
             ),
           ),
-          if (member.car != null) _buildCar(member.car, context)
+          if (member.car != null) _buildCar(member.car, context),
         ],
       ),
     );
@@ -200,13 +200,26 @@ class EvetMembersArrivingList extends StatelessWidget {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
-      child: ListView(children: [
-        ...arriving.map((em) => _buildNameRow(em, Colors.green, context)),
-        if (notArriving.isNotEmpty) Divider(thickness: 1),
-        ...notArriving.map((em) => _buildNameRow(em, Colors.red)),
-        if (hasntConfirmed.isNotEmpty) Divider(thickness: 1),
-        ...hasntConfirmed.map((em) => _buildNameRow(em, Colors.orange)),
-      ]),
+      child: ListView(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 15),
+            child: Text(
+              'Meet create by: ${meet.meet.createBy.name}',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Divider(),
+          ...arriving.map((em) => _buildNameRow(em, Colors.green, context)),
+          if (notArriving.isNotEmpty) Divider(thickness: 1),
+          ...notArriving.map((em) => _buildNameRow(em, Colors.red)),
+          if (hasntConfirmed.isNotEmpty) Divider(thickness: 1),
+          ...hasntConfirmed.map((em) => _buildNameRow(em, Colors.orange)),
+        ],
+      ),
     );
   }
 }

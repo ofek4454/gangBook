@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:image_picker/image_picker.dart';
@@ -96,8 +97,8 @@ class GangImage extends StatelessWidget {
                                 ? FadeInImage(
                                     placeholder: AssetImage(
                                         'assets/images/gang_placeholder.jpg'),
-                                    image:
-                                        NetworkImage(gangState.gang.gangImage),
+                                    image: CachedNetworkImageProvider(
+                                        gangState.gang.gangImage),
                                     fit: BoxFit.cover,
                                     height: double.infinity,
                                     width: double.infinity,

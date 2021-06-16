@@ -17,7 +17,7 @@ class GangState {
 
   Future<void> changeGangImage(File image) async {
     if (_gang.gangImage != null) {
-      await CloudinaryRequests().deleteImage(_gang.gangImage);
+      await CloudinaryRequests().deleteIFile(_gang.gangImage);
     }
     final imageUrl =
         await CloudinaryRequests().uploadGangImage(image, _gang.id);
@@ -61,7 +61,7 @@ class GangState {
     return retVal;
   }
 
-  Future<String> leaveGang(UserModel user) async {
+  Future<String> leaveGang(UserModel user, String newLeaderUid) async {
     String retVal = 'error';
     try {
       for (final meetId in _gang.meetIds) {
@@ -70,7 +70,9 @@ class GangState {
 
         await meet.removeEventMember(user.uid);
       }
-
+      if (newLeaderUid != null) {
+        await GangDB().replaceLeader(_gang.id, newLeaderUid);
+      }
       await GangDB().leaveGang(gangId: _gang.id, user: user);
 
       retVal = 'success';

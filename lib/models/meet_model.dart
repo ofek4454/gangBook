@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gangbook/models/event_member.dart';
+import 'package:gangbook/models/gang_member.dart';
 
 class MeetModel {
   String id;
@@ -9,6 +10,7 @@ class MeetModel {
   Timestamp createdAt;
   String moreInfo;
   List<EventMember> membersAreComming;
+  GangMember createBy;
 
   MeetModel({
     this.id,
@@ -18,6 +20,7 @@ class MeetModel {
     this.createdAt,
     this.moreInfo,
     this.membersAreComming,
+    this.createBy,
   });
 
   MeetModel.fromDocumentSnapshot(DocumentSnapshot doc) {
@@ -30,6 +33,7 @@ class MeetModel {
     this.membersAreComming = List<String>.from(doc.data()['membersAreComming'])
         .map<EventMember>((evData) => EventMember.fromJson(evData))
         .toList();
+    this.createBy = GangMember.fromJson(doc.data()['createBy']);
   }
 
   ConfirmationType userAreComming(String uid) {

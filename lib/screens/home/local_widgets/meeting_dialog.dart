@@ -19,6 +19,7 @@ class _MeetingDialogState extends State<MeetingDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final cardHeight = MediaQuery.of(context).size.height * 0.45;
     return Consumer<GangState>(
       builder: (context, currentGang, child) {
         if (currentGang == null || currentGang.gang.meetIds == null)
@@ -29,7 +30,7 @@ class _MeetingDialogState extends State<MeetingDialog> {
                 ? ThereIsNoMeeting()
                 : Container(
                     width: double.infinity,
-                    height: MediaQuery.of(context).size.height * 0.45,
+                    height: cardHeight,
                     child: PageView.builder(
                       controller: controller,
                       onPageChanged: (value) => setState(() {

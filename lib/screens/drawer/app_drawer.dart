@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/user_model.dart';
+import 'package:gangbook/screens/chat/chat_screen.dart';
 import 'package:gangbook/screens/gang/gang_screen.dart';
 import 'package:gangbook/screens/gang_join_requests/gang_join_requests_screen.dart';
 import 'package:gangbook/screens/home/home_screen.dart';
@@ -11,10 +12,12 @@ import 'package:gangbook/screens/meets_history/history_screen.dart';
 import 'package:gangbook/screens/profile/profile_screen.dart';
 import 'package:gangbook/screens/settings/settings_screen.dart';
 import 'package:gangbook/services/auth.dart';
+import 'package:gangbook/services/database_streams.dart';
+import 'package:gangbook/state_managment/chat_state.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
 import 'package:gangbook/state_managment/posts_feed.dart';
 import 'package:gangbook/state_managment/user_state.dart';
-import 'package:gangbook/utils/names_initials.dart';
+import 'package:gangbook/widgets/user_image_bubble.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,6 +45,7 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
+    final userState = Provider.of<UserState>(context, listen: false);
     final gang = Provider.of<GangState>(context, listen: false);
     if (gang != null && gang.gang != null) {
       final prefs = await SharedPreferences.getInstance();
@@ -58,6 +62,29 @@ class _AppDrawerState extends State<AppDrawer> {
         FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Chat");
       }
 
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        if (message.from.contains('Chat')) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => StreamProvider<ChatState>.value(
+                value: DBStreams().getChat(gang.gang.id),
+                initialData: null,
+                child: MultiProvider(
+                  providers: [
+                    Provider<UserState>.value(
+                      value: userState,
+                    ),
+                    Provider<GangState>.value(
+                      value: gang,
+                    )
+                  ],
+                  child: ChatScreen(),
+                ),
+              ),
+            ),
+          );
+        }
+      });
       FirebaseMessaging.onMessage.listen(
         (RemoteMessage message) {
           if (message.from.contains('Chat')) {
@@ -122,13 +149,43 @@ class _AppDrawerState extends State<AppDrawer> {
         ],
       ),
     );
-    if (decideToLeaveGang)
+    if (decideToLeaveGang) {
+      final gang = Provider.of<GangState>(context, listen: false);
+      String newLeaderUid;
+      if (user.uid == gang.gang.leader) {
+        newLeaderUid = await showDialog<String>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('You are the leader, please choose new leader'),
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: gang.gang.members.length,
+                itemBuilder: (ctx, i) => ListTile(
+                  title: Text(gang.gang.members[i].name),
+                  onTap: () => Navigator.of(ctx).pop(gang.gang.members[i].uid),
+                ),
+              ),
+            ),
+          ),
+        );
+        if (newLeaderUid == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Gang leader cannot leave the gang before choose new leader.',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+      }
       showDialog(
         context: context,
         builder: (ctx) {
-          final gang = Provider.of<GangState>(context, listen: false);
-
-          gang.leaveGang(user).then((value) {
+          gang.leaveGang(user, newLeaderUid).then((value) {
             Navigator.of(ctx).pop();
           });
           return AlertDialog(
@@ -139,6 +196,7 @@ class _AppDrawerState extends State<AppDrawer> {
           ));
         },
       );
+    }
   }
 
   @override
@@ -174,37 +232,28 @@ class _AppDrawerState extends State<AppDrawer> {
               child: Column(
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.23,
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    alignment: Alignment.center,
+                    height: MediaQuery.of(context).size.height * 0.25,
                     child: DrawerHeader(
+                      padding: EdgeInsets.zero,
                       margin: EdgeInsets.only(bottom: 10),
                       child: Column(
                         children: [
-                          CircleAvatar(
-                            backgroundImage: user.profileImageUrl == null
-                                ? null
-                                : NetworkImage(user.profileImageUrl),
-                            backgroundColor: Theme.of(context).canvasColor,
+                          UserImagebubble(
+                            uid: user.uid,
                             radius: MediaQuery.of(context).size.width * 0.1,
-                            child: user.profileImageUrl != null
-                                ? null
-                                : Text(
-                                    NameInitials().getInitials(user.fullName),
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .secondaryHeaderColor,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.07,
-                                    ),
-                                  ),
+                            userImageUrl: user.profileImageUrl,
+                            userName: user.fullName,
                           ),
-                          //SizedBox(width: 15),
-                          Text(
-                            user.fullName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 30,
+                          FittedBox(
+                            child: Text(
+                              user.fullName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 30,
+                              ),
                             ),
                           ),
                           FittedBox(

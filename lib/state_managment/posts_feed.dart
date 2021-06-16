@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/post_model.dart';
+import 'package:gangbook/services/cloudinary_requests.dart';
 import 'package:gangbook/services/posts_db.dart';
 
 class PostsFeed extends ChangeNotifier {
@@ -49,6 +50,13 @@ class PostsFeed extends ChangeNotifier {
   }
 
   void deletePost(String postId, String gangId) async {
+    final post = _posts.firstWhere((post) => post.id == postId);
+    post.images.forEach((imageUrl) async {
+      await CloudinaryRequests().deleteIFile(imageUrl);
+    });
+    post.videos.forEach((videoUrl) async {
+      await CloudinaryRequests().deleteIFile(videoUrl);
+    });
     _posts.removeWhere((post) => post.id == postId);
     notifyListeners();
     await PostsDB().deletePost(gangId, postId);

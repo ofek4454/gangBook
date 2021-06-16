@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gangbook/models/event_member.dart';
+import 'package:gangbook/models/gang_member.dart';
 import 'package:gangbook/models/gang_model.dart';
 import 'package:gangbook/models/meet_model.dart';
 import 'package:gangbook/models/user_model.dart';
@@ -45,13 +46,15 @@ class MeetDB {
     return _meets;
   }
 
-  Future<String> setNewMeet(
-      {@required String title,
-      @required String location,
-      @required String moreInfo,
-      @required Timestamp meetingAt,
-      @required UserModel user,
-      @required GangModel gang}) async {
+  Future<String> setNewMeet({
+    @required String title,
+    @required String location,
+    @required String moreInfo,
+    @required Timestamp meetingAt,
+    @required UserModel user,
+    @required GangModel gang,
+    @required GangMember createBy,
+  }) async {
     String retVal = 'error';
     List<String> membersAreComming = [];
     try {
@@ -90,6 +93,7 @@ class MeetDB {
         'meetingAt': meetingAt,
         'membersAreComming': membersAreComming,
         'createdAt': Timestamp.now(),
+        'createBy': createBy.toJson(),
       });
 
       await _firestore.collection('gangs').doc(user.gangId).update({

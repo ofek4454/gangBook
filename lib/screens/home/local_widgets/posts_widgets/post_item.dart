@@ -116,14 +116,22 @@ class PostItem extends StatelessWidget {
                               uid: post.authorId,
                             ),
                             SizedBox(width: 10),
-                            Text(
-                              post.authorName,
-                              style: Theme.of(context).textTheme.subtitle1,
+                            FittedBox(
+                              child: Text(
+                                post.authorName,
+                                style: Theme.of(context).textTheme.subtitle1,
+                              ),
                             ),
+                            SizedBox(width: 10),
                             Spacer(),
-                            Text(
-                              DateFormat('HH:mm dd/MM')
-                                  .format(post.createdAt.toDate()),
+                            Container(
+                              width: screenSize.width * 0.2,
+                              child: FittedBox(
+                                child: Text(
+                                  DateFormat('HH:mm dd/MM')
+                                      .format(post.createdAt.toDate()),
+                                ),
+                              ),
                             ),
                             if (post.authorId == userState.user.uid)
                               PopupMenuButton<MenuItem>(
@@ -225,18 +233,21 @@ class PostItem extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    IconButton(
-                      icon: Icon(
-                        doIlike ? Icons.favorite : Icons.favorite_border,
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        child: Icon(
+                          doIlike ? Icons.favorite : Icons.favorite_border,
+                          color: doIlike ? Colors.red : Colors.black,
+                        ),
+                        onTap: () {
+                          if (doIlike) {
+                            postState.unLikePost();
+                          } else {
+                            postState.likePost();
+                          }
+                        },
                       ),
-                      color: doIlike ? Colors.red : Colors.black,
-                      onPressed: () {
-                        if (doIlike) {
-                          postState.unLikePost();
-                        } else {
-                          postState.likePost();
-                        }
-                      },
                     ),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(20),
@@ -270,10 +281,12 @@ class PostItem extends StatelessWidget {
                       ),
                     ),
                     Spacer(),
-                    IconButton(
-                      icon: Icon(Icons.comment),
-                      color: Colors.black,
-                      onPressed: () => _comment(context),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _comment(context),
+                        child: Icon(Icons.comment),
+                      ),
                     ),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(20),
@@ -312,6 +325,7 @@ class PostItem extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: IconButton(
+                          padding: EdgeInsets.zero,
                           icon: Icon(
                             isUserSaved
                                 ? Icons.bookmark

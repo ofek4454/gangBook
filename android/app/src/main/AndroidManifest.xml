@@ -7,7 +7,8 @@
 
    <application
         android:label="gangbook"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+       android:roundIcon="@mipmap/ic_launcher_round">
         <activity android:name="com.apptreesoftware.barcodescan.BarcodeScannerActivity"/>
         <activity
             android:name=".MainActivity"

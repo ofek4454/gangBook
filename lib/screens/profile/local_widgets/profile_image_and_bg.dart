@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/state_managment/user_state.dart';
 import 'package:image_picker/image_picker.dart';
@@ -99,7 +100,7 @@ class ProfileImageAndBG extends StatelessWidget {
                                 ? FadeInImage(
                                     placeholder: AssetImage(
                                         'assets/images/person_placeholder.png'),
-                                    image: NetworkImage(
+                                    image: CachedNetworkImageProvider(
                                         userState.user.profileImageUrl),
                                     fit: BoxFit.cover,
                                     height: double.infinity,

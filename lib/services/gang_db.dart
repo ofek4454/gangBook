@@ -249,4 +249,17 @@ class GangDB {
     }
     return retVal;
   }
+
+  Future<String> replaceLeader(String gangId, String newLeaderUid) async {
+    String retVal = 'error';
+    try {
+      await _firestore.collection('gangs').doc(gangId).update({
+        'leader': newLeaderUid,
+      });
+      retVal = 'success';
+    } catch (e) {
+      print(e);
+    }
+    return retVal;
+  }
 }

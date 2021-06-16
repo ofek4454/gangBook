@@ -15,16 +15,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 
   flutterLocalNotificationsPlugin.show(
-      message.data.hashCode,
-      message.data['title'],
-      message.data['body'],
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          channel.description,
-        ),
-      ));
+    message.data.hashCode,
+    message.data['title'],
+    message.data['body'],
+    NotificationDetails(
+      android: AndroidNotificationDetails(
+        channel.id,
+        channel.name,
+        channel.description,
+      ),
+    ),
+  );
 }
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/event_member.dart';
-import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/meeting_timer.dart';
 import 'package:gangbook/screens/home/local_widgets/meeting_widgets/user_arrival_control_buttons.dart';
 import 'package:gangbook/state_managment/gang_state.dart';
@@ -23,18 +22,19 @@ class ThereIsMeet extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         child: _meet == null
-            ? CircularProgressIndicator.adaptive()
+            ? Center(child: CircularProgressIndicator.adaptive())
             : Scrollbar(
                 radius: Radius.circular(30),
                 thickness: 6,
-                child: SingleChildScrollView(
+                child: Container(
                   child: Stack(
                     alignment: Alignment.center,
                     clipBehavior: Clip.none,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
+                      ListView(
+                        padding: EdgeInsets.only(top: 20),
+                        //crossAxisAlignment: CrossAxisAlignment.center,
+                        //mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             _meet.meet.title,
@@ -42,6 +42,7 @@ class ThereIsMeet extends StatelessWidget {
                               fontSize: 30,
                               color: Colors.black,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                           SizedBox(height: 10),
                           Text(
@@ -50,6 +51,7 @@ class ThereIsMeet extends StatelessWidget {
                               fontSize: 20,
                               color: Theme.of(context).secondaryHeaderColor,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                           SizedBox(height: 10),
                           if (_meet.meet.moreInfo.isNotEmpty)
