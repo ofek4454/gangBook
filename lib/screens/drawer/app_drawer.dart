@@ -45,6 +45,7 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
+
     final userState = Provider.of<UserState>(context, listen: false);
     final gang = Provider.of<GangState>(context, listen: false);
     if (gang != null && gang.gang != null) {
@@ -61,9 +62,15 @@ class _AppDrawerState extends State<AppDrawer> {
       } else {
         FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Chat");
       }
+      if (userState.user.uid == gang.gang.leader) {
+        FirebaseMessaging.instance.subscribeToTopic(gang.gang.id + "Leader");
+      }
 
       FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        final page = ModalRoute.of(context).runtimeType;
+        print(page);
         if (message.from.contains('Chat')) {
+          if (page == ChatScreen) return;
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => StreamProvider<ChatState>.value(
@@ -87,14 +94,32 @@ class _AppDrawerState extends State<AppDrawer> {
       });
       FirebaseMessaging.onMessage.listen(
         (RemoteMessage message) {
+          final page = ModalRoute.of(context).runtimeType;
+          print(page);
           if (message.from.contains('Chat')) {
-            //Do something
+            if (page == ChatScreen) return;
+            ScaffoldMessenger.of(_scaffoldkey.currentContext)
+                .hideCurrentSnackBar();
+            ScaffoldMessenger.of(_scaffoldkey.currentContext).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.chat_bubble),
+                    Text(
+                      message.notification.body,
+                    ),
+                  ],
+                ),
+              ),
+            );
           } else if (message.from.contains('Meets')) {
             ScaffoldMessenger.of(_scaffoldkey.currentContext).showSnackBar(
               SnackBar(
                 content: Text('new meet is schedulled! check in home page'),
               ),
             );
+          } else if (message.from.contains('Leader')) {
+            changePage(GangJoinRequestsScreen(openDrawer));
           }
         },
       );

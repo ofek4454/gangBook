@@ -30,74 +30,76 @@ class _MessageFieldState extends State<MessageField> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        top: 10,
-        left: 10,
-        bottom: 5,
-      ),
-      width: double.infinity,
-      constraints:
-          BoxConstraints(minHeight: MediaQuery.of(context).size.height * 0.07),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: TextField(
-                controller: _messageController,
-                maxLines: 4,
-                minLines: 1,
-                textInputAction: TextInputAction.send,
-                decoration: InputDecoration(
-                  hintText: 'Your message here',
-                  border: InputBorder.none,
-                ),
-                onChanged: (value) {
-                  if (value.trim().isNotEmpty && isEmpty) {
-                    setState(() {
-                      isEmpty = false;
-                    });
-                  }
-                  if (value.trim().isEmpty && !isEmpty) {
-                    setState(() {
-                      isEmpty = true;
-                    });
-                  }
-                },
-                onEditingComplete: () {
-                  if (_messageController.text.trim().isNotEmpty) {
-                    _sendMessage();
-                  }
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: InkWell(
-              onTap: isEmpty ? null : _sendMessage,
+    return SafeArea(
+      child: Container(
+        padding: EdgeInsets.only(
+          top: 10,
+          left: 10,
+          bottom: 5,
+        ),
+        width: double.infinity,
+        constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height * 0.07),
+        child: Row(
+          children: [
+            Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: isEmpty ? Colors.grey : Colors.teal,
-                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height * 0.06,
-                  minWidth: MediaQuery.of(context).size.height * 0.06,
-                ),
-                child: Icon(
-                  Icons.send,
-                  color: isEmpty ? Colors.black : Colors.white,
+                child: TextField(
+                  controller: _messageController,
+                  maxLines: 4,
+                  minLines: 1,
+                  textInputAction: TextInputAction.send,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                    hintText: 'Your message here',
+                    border: InputBorder.none,
+                  ),
+                  onChanged: (value) {
+                    if (value.trim().isNotEmpty && isEmpty) {
+                      setState(() {
+                        isEmpty = false;
+                      });
+                    }
+                    if (value.trim().isEmpty && !isEmpty) {
+                      setState(() {
+                        isEmpty = true;
+                      });
+                    }
+                  },
+                  onEditingComplete: () {
+                    if (_messageController.text.trim().isNotEmpty) {
+                      _sendMessage();
+                    }
+                  },
                 ),
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: InkWell(
+                onTap: isEmpty ? null : _sendMessage,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isEmpty ? Colors.grey : Colors.teal,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height * 0.06,
+                    minWidth: MediaQuery.of(context).size.height * 0.06,
+                  ),
+                  child: Icon(
+                    Icons.send,
+                    color: isEmpty ? Colors.black : Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

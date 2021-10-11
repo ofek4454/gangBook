@@ -67,6 +67,7 @@ class Auth {
           uid: _userCresential.user.uid,
           email: _userCresential.user.email,
           name: _userCresential.user.displayName,
+          imageUrl: _userCresential.user.photoURL,
         );
       }
       if (_userCresential != null) {
@@ -90,7 +91,8 @@ class Auth {
     return retVal;
   }
 
-  Future<String> createUser({String uid, String name, String email}) async {
+  Future<String> createUser(
+      {String uid, String name, String email, String imageUrl}) async {
     String retVal = 'error';
     final _firestore = FirebaseFirestore.instance;
     try {
@@ -98,6 +100,7 @@ class Auth {
         'fullname': name,
         'email': email,
         'createdAt': Timestamp.now(),
+        'profileImageUrl': imageUrl,
       });
       retVal = 'success';
     } catch (e) {

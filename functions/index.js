@@ -36,13 +36,31 @@ exports.notifyOnMeetCreation = functions.firestore.document("gangs/{gang}/meets/
 exports.notifyOnMessageCreation = functions.firestore.document("gangs/{gang}/chat/{message}")
 .onCreate(async(snapshot, context)=>{
     const gangDoc = snapshot.ref.parent.parent;
-    const gang = await gangDoc.get();
+    //const gang = await gangDoc.get();
+    const sender = JSON.parse(snapshot.data().sender);
     console.log("called gangId: " + gangDoc.id + " createdMessageId: " + snapshot.id);
     return admin.messaging().sendToTopic(gangDoc.id+"Chat" ,
     {notification: {
-        title: gang.data().name, 
-        body: snapshot.data().message,
+        title: sender.name, //gang.data().name,
+        body: snapshot.data().message, //sender.name + "\n" + snapshot.data().message,
         clickAction: 'FLUTTER_NOTIFICATION_CLICK',
     }
 }); 
+});
+
+exports.notifyLeaderOnJoinRequest = functions.firestore.document("gangs/{gang}")
+.onUpdate(async(change, context)=>{
+    const oldGangData = change.before.data();
+    const newGangData = change.after.data();
+    const oldRequsts = oldGangData.joinRequests;
+    const newRequests = newGangData.joinRequests;
+    if(oldRequsts.length != newRequests.length){
+        return admin.messaging().sendToTopic(gangDoc.id+"Leader" ,
+        {notification: {
+            title: "New request to join you gang!", //gang.data().name,
+            body: "Click to approve/denie requst", //sender.name + "\n" + snapshot.data().message,
+            clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+        }
+    }); 
+    }
 });

@@ -20,7 +20,10 @@ class _MeetingTimerState extends State<MeetingTimer>
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    setState(() {
+      timeLeft = TimeLeft().timeLeft(widget.meetingDateTime);
+    });
+    timer = Timer.periodic(Duration(minutes: 1), (timer) {
       setState(() {
         timeLeft = TimeLeft().timeLeft(widget.meetingDateTime);
       });
