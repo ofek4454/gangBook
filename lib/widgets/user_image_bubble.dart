@@ -47,7 +47,9 @@ class UserImagebubble extends StatelessWidget {
                 : CachedNetworkImageProvider(
                     snapshot.data['imageUrl'],
                   ),
-            backgroundColor: Theme.of(context).canvasColor,
+            backgroundColor: HSLColor.fromColor(Theme.of(context).canvasColor)
+                .withLightness(0.8)
+                .toColor(),
             radius: radius ?? 20,
             child: snapshot.data['imageUrl'] != null
                 ? null

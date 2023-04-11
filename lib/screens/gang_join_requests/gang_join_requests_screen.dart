@@ -14,9 +14,11 @@ class GangJoinRequestsScreen extends StatelessWidget {
     final gangState = Provider.of<GangState>(context);
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.menu_rounded),
+          color: Colors.black,
           onPressed: () => openDrawer(),
         ),
       ),

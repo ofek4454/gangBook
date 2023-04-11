@@ -63,7 +63,7 @@ class GangImage extends StatelessWidget {
       margin: EdgeInsets.only(bottom: bottomMargin),
       child: Stack(
         alignment: Alignment.bottomCenter,
-        // overflow: Overflow.visible,
+        clipBehavior: Clip.none,
         children: [
           ClipPath(
             clipper: CustomShapeClipper(),

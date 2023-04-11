@@ -49,7 +49,7 @@ class MessageBubble extends StatelessWidget {
           sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         Stack(
-          // overflow: Overflow.visible,
+          clipBehavior: Clip.none,
           children: [
             Container(
               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),

@@ -47,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           headerSliverBuilder: (context, value) {
             return [
               SliverAppBar(
+                backgroundColor: Colors.transparent,
                 expandedHeight: userImageRaduis * 3.5,
                 flexibleSpace: FlexibleSpaceBar(
                   background: ProfileImageAndBG(userImageRaduis),

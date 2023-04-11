@@ -193,6 +193,8 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(color: Colors.black),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Container(
@@ -226,12 +228,12 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
                 controller: moreInfoController,
                 needValidation: false,
               ),
-              TextButton(
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                },
-                child: Text('unfocus'),
-              ),
+              // TextButton(
+              //   onPressed: () {
+              //     FocusScope.of(context).unfocus();
+              //   },
+              //   child: Text('unfocus'),
+              // ),
               isLoading
                   ? Center(
                       child: CircularProgressIndicator(),

@@ -37,9 +37,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
+            color: Colors.black,
             icon: Icon(Icons.messenger_outline_rounded),
             onPressed: () {
               Navigator.of(context).push(
@@ -66,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         leading: IconButton(
           icon: Icon(Icons.menu_rounded),
+          color: Colors.black,
           onPressed: () => widget.openDrawer(),
         ),
       ),

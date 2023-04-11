@@ -28,6 +28,7 @@ class GangScreen extends StatelessWidget {
               flexibleSpace: FlexibleSpaceBar(
                 background: GangImage(imageRaduis),
               ),
+              backgroundColor: Colors.transparent,
               pinned: true,
               elevation: 0,
               title: Text(

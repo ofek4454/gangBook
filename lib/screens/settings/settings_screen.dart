@@ -33,10 +33,12 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.menu_rounded),
           onPressed: () => openDrawer(),
+          color: Colors.black,
         ),
       ),
       body: FutureBuilder<SharedPreferences>(

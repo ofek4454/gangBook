@@ -40,9 +40,11 @@ class HistoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
+        backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(Icons.menu_rounded),
           onPressed: () => openDrawer(),
+          color: Colors.black,
         ),
       ),
       body: FutureBuilder<List<MeetModel>>(
@@ -64,7 +66,7 @@ class HistoryScreen extends StatelessWidget {
                     ),
                     Spacer(),
                     Text(
-                      'You arrive to: ${userArriveTo(context, snapshot.data)}',
+                      'You arrived to: ${userArriveTo(context, snapshot.data)}',
                       style: TextStyle(fontSize: 18),
                     ),
                   ],

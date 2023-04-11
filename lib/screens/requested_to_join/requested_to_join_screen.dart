@@ -16,6 +16,7 @@ class RequestedToJoinScreen extends StatelessWidget {
         } else {
           return Scaffold(
             appBar: AppBar(
+              backgroundColor: Colors.transparent,
               elevation: 0,
               title: TextButton.icon(
                 onPressed: () {

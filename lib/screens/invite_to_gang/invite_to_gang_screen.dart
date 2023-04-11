@@ -16,9 +16,11 @@ class InviteToGangScreen extends StatelessWidget {
     final gang = Provider.of<GangState>(context, listen: false).gang;
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.menu_rounded),
+            color: Colors.black,
             onPressed: () => openDrawer(),
           ),
         ),
