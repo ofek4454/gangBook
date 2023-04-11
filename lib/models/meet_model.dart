@@ -24,16 +24,17 @@ class MeetModel {
   });
 
   MeetModel.fromDocumentSnapshot(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     this.id = doc.id;
-    this.title = doc.data()['title'];
-    this.location = doc.data()['location'];
-    this.moreInfo = doc.data()['moreInfo'];
-    this.meetingAt = doc.data()['meetingAt'];
-    this.createdAt = doc.data()['createdAt'];
-    this.membersAreComming = List<String>.from(doc.data()['membersAreComming'])
+    this.title = data['title'];
+    this.location = data['location'];
+    this.moreInfo = data['moreInfo'];
+    this.meetingAt = data['meetingAt'];
+    this.createdAt = data['createdAt'];
+    this.membersAreComming = List<String>.from(data['membersAreComming'])
         .map<EventMember>((evData) => EventMember.fromJson(evData))
         .toList();
-    this.createBy = GangMember.fromJson(doc.data()['createBy']);
+    this.createBy = GangMember.fromJson(data['createBy']);
   }
 
   ConfirmationType userAreComming(String uid) {

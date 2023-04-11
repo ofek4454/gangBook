@@ -27,18 +27,19 @@ class Post {
       this.authorImage});
 
   Post.fromDocumentSnapshot(DocumentSnapshot doc, List<PostComment> _comments) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     this.id = doc.id;
-    this.authorId = doc.data()['authorId'];
-    this.authorName = doc.data()['authorName'];
+    this.authorId = data['authorId'];
+    this.authorName = data['authorName'];
     this.comments = _comments;
-    this.content = doc.data()['content'];
-    this.createdAt = doc.data()['createdAt'];
-    this.images = List<String>.from(doc.data()['images']);
-    this.videos = List<String>.from(doc.data()['videos']);
-    this.likes = List<String>.from(doc.data()['likes'])
+    this.content = data['content'];
+    this.createdAt = data['createdAt'];
+    this.images = List<String>.from(data['images']);
+    this.videos = List<String>.from(data['videos']);
+    this.likes = List<String>.from(data['likes'])
         .map<PostLike>((like) => PostLike.fromJson(like))
         .toList();
-    this.authorImage = doc.data()['authorImage'];
+    this.authorImage = data['authorImage'];
   }
 
   bool doILike(String uid) {
@@ -68,14 +69,15 @@ class PostComment {
       this.commetId});
 
   PostComment.fromDocumentSnapshot(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     this.commetId = doc.id;
-    this.comment = doc.data()['comment'];
-    this.uid = doc.data()['uid'];
-    this.likes = List<String>.from(doc.data()['likes'] ?? [])
+    this.comment = data['comment'];
+    this.uid = data['uid'];
+    this.likes = List<String>.from(data['likes'] ?? [])
         .map<PostLike>((like) => PostLike.fromJson(like))
         .toList();
-    this.name = doc.data()['name'];
-    this.createdAt = doc.data()['createdAt'];
+    this.name = data['name'];
+    this.createdAt = data['createdAt'];
   }
 
   bool doILike(String uid) {

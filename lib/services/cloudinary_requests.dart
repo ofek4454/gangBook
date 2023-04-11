@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
-import 'package:gangbook/private_keys.dart';
+import '../private_keys.dart';
 
 class CloudinaryRequests {
-  Cloudinary cloudinary =
-      Cloudinary(CLOYDINARY_API_KEY, CLOUDINARY_PRIVATE_KEY, 'gangbook');
+  Cloudinary cloudinary = Cloudinary.full(
+      apiKey: CLOYDINARY_API_KEY,
+      apiSecret: CLOUDINARY_PRIVATE_KEY,
+      cloudName: 'gangbook');
 
   Future<String> uploadUserProfileImage(File image, String uid) async {
     final response = await cloudinary.uploadFile(

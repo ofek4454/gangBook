@@ -30,10 +30,11 @@ class Message {
   });
 
   Message.fromDocumentSnapshot(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     this.id = doc.id;
-    this.message = doc.data()['message'];
-    this.sender = MessageSender.fromJson(doc.data()['sender']);
-    this.createdAt = doc.data()['createdAt'];
+    this.message = data['message'];
+    this.sender = MessageSender.fromJson(data['sender']);
+    this.createdAt = data['createdAt'];
   }
 }
 

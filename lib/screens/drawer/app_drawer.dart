@@ -157,19 +157,21 @@ class _AppDrawerState extends State<AppDrawer> {
         title: Text('Are you sure?'),
         content: Text('This action cannot be undone'),
         actions: [
-          FlatButton(
+          TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
             },
             child: Text('leave gang'),
-            textColor: Colors.red,
+            style:
+                TextButton.styleFrom(textStyle: TextStyle(color: Colors.red)),
           ),
-          FlatButton(
+          TextButton(
             onPressed: () {
               Navigator.of(context).pop(false);
             },
             child: Text('cancel'),
-            textColor: Colors.black,
+            style:
+                TextButton.styleFrom(textStyle: TextStyle(color: Colors.red)),
           ),
         ],
       ),

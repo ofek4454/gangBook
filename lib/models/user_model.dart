@@ -23,14 +23,15 @@ class UserModel {
       this.gangJoinRequest});
 
   UserModel.fromDocumentSnapshot(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     this.uid = doc.id;
-    this.email = doc.data()['email'];
-    this.fullName = doc.data()['fullname'];
-    this.createdAt = doc.data()['createdAt'];
-    this.gangId = doc.data()['gangId'];
-    this.savedPosts = List<String>.from(doc.data()['savedPosts'] ?? []);
-    this.profileImageUrl = doc.data()['profileImageUrl'];
-    this.gangJoinRequest = doc.data()['gangJoinRequest'];
+    this.email = data['email'];
+    this.fullName = data['fullname'];
+    this.createdAt = data['createdAt'];
+    this.gangId = data['gangId'];
+    this.savedPosts = List<String>.from(data['savedPosts'] ?? []);
+    this.profileImageUrl = data['profileImageUrl'];
+    this.gangJoinRequest = data['gangJoinRequest'];
   }
 
   String nameAndIdJson() {

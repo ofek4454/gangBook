@@ -74,14 +74,16 @@ class NotInGangScreeen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
-                        child: RaisedButton(
+                        child: ElevatedButton(
                           onPressed: () => _goToJoinGang(context),
-                          color: Theme.of(context).canvasColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(
-                              color: Theme.of(context).secondaryHeaderColor,
-                              width: 3,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).canvasColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(
+                                color: Theme.of(context).secondaryHeaderColor,
+                                width: 3,
+                              ),
                             ),
                           ),
                           child: Text(
@@ -95,7 +97,7 @@ class NotInGangScreeen extends StatelessWidget {
                       ),
                       SizedBox(width: 20),
                       Expanded(
-                        child: RaisedButton(
+                        child: ElevatedButton(
                           onPressed: () => _goToCreateGang(context),
                           child: Text(
                             'Create',

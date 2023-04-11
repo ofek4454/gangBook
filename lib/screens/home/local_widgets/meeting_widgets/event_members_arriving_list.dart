@@ -127,12 +127,12 @@ class EvetMembersArrivingList extends StatelessWidget {
                             controller: textController,
                           ),
                           actions: [
-                            FlatButton(
+                            TextButton(
                                 onPressed: () {
                                   Navigator.of(ctx).pop(textController.text);
                                 },
                                 child: Text('OK')),
-                            FlatButton(
+                            TextButton(
                                 onPressed: () {
                                   Navigator.of(ctx).pop(null);
                                 },

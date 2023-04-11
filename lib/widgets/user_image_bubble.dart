@@ -44,7 +44,9 @@ class UserImagebubble extends StatelessWidget {
           return CircleAvatar(
             backgroundImage: snapshot.data['imageUrl'] == null
                 ? null
-                : CachedNetworkImageProvider(snapshot.data['imageUrl']),
+                : CachedNetworkImageProvider(
+                    snapshot.data['imageUrl'],
+                  ),
             backgroundColor: Theme.of(context).canvasColor,
             radius: radius ?? 20,
             child: snapshot.data['imageUrl'] != null

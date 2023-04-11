@@ -22,7 +22,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       android: AndroidNotificationDetails(
         channel.id,
         channel.name,
-        channel.description,
+        channelDescription: channel.description,
       ),
     ),
   );
@@ -31,7 +31,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
   'high_importance_channel', // id
   'High Importance Notifications', // title
-  'This channel is used for important notifications.', // description
+  description:
+      'This channel is used for important notifications.', // description
   importance: Importance.high,
 );
 
@@ -58,7 +59,7 @@ void main() async {
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>()
-        ?.initialize(IOSInitializationSettings());
+        ?.initialize(DarwinInitializationSettings());
   }
 
   runApp(MyApp());
@@ -75,7 +76,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     var initialzationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    var initialzationSettingsIOS = IOSInitializationSettings();
+    var initialzationSettingsIOS = DarwinInitializationSettings();
     var initializationSettings = InitializationSettings(
         android: initialzationSettingsAndroid, iOS: initialzationSettingsIOS);
     if (Platform.isIOS) {

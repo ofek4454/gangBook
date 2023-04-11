@@ -47,7 +47,7 @@ class ThereIsNoMeeting extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 10),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () => _scheduleMeeting(context),
                 child: Text(
                   haveMoreMeetings ? 'Add' : 'Schedule meeting',

@@ -26,6 +26,23 @@ class AppTheme {
           ),
         ),
       ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor:
+              MaterialStateColor.resolveWith((states) => _darkerGrey),
+          padding: MaterialStateProperty.resolveWith<EdgeInsets>(
+            (states) => EdgeInsets.symmetric(horizontal: 10.0),
+          ),
+          minimumSize: MaterialStateProperty.resolveWith<Size>(
+            (states) => Size(200, 40),
+          ),
+          shape: MaterialStateProperty.resolveWith<RoundedRectangleBorder>(
+            (states) => RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+          ),
+        ),
+      ),
       buttonTheme: ButtonThemeData(
         buttonColor: _darkerGrey,
         padding: EdgeInsets.symmetric(horizontal: 10.0),

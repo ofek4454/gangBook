@@ -73,7 +73,7 @@ class _CreateGangScreenState extends State<CreateGangScreen> {
                 SizedBox(height: 15),
                 isLoading
                     ? CircularProgressIndicator()
-                    : RaisedButton(
+                    : ElevatedButton(
                         onPressed: () => _create(),
                         child: Text(
                           'Create',

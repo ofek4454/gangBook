@@ -135,7 +135,7 @@ class _SignUpFormState extends State<SignUpForm> {
             SizedBox(height: 20),
             isLoading
                 ? CircularProgressIndicator()
-                : RaisedButton(
+                : ElevatedButton(
                     onPressed: () => _submit(),
                     child: Text(
                       'Sign Up',

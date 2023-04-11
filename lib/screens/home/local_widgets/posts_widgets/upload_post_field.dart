@@ -38,7 +38,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
       builder: (ctx) => AlertDialog(
         title: Text('Choose image source'),
         actions: [
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(Icons.photo_library),
             label: Text('Gallery'),
             onPressed: () async {
@@ -46,7 +46,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
               Navigator.of(ctx).pop(photo);
             },
           ),
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(Icons.camera_alt),
             label: Text('Camera'),
             onPressed: () async {
@@ -59,7 +59,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
     );
 
     if (pickedImage == null) {
-      Scaffold.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('No image selected please try again'),
           backgroundColor: Theme.of(context).errorColor,
@@ -79,7 +79,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
       builder: (ctx) => AlertDialog(
         title: Text('Choose video source'),
         actions: [
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(Icons.photo_library),
             label: Text('Gallery'),
             onPressed: () async {
@@ -90,7 +90,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
               Navigator.of(ctx).pop(video);
             },
           ),
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(Icons.camera_alt),
             label: Text('Camera'),
             onPressed: () async {
@@ -106,7 +106,7 @@ class _UploadPostFieldState extends State<UploadPostField> {
     );
 
     if (pickedVideo == null) {
-      Scaffold.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('No video selected please try again'),
           backgroundColor: Theme.of(context).errorColor,
@@ -243,24 +243,35 @@ class _UploadPostFieldState extends State<UploadPostField> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                FlatButton.icon(
-                  minWidth: 0,
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).secondaryHeaderColor,
+                    minimumSize: Size(0, 0),
+                  ),
                   icon: Icon(Icons.photo_library),
                   label: Text('Add image'),
                   onPressed: () => addImage(),
-                  textColor: Theme.of(context).secondaryHeaderColor,
                 ),
-                FlatButton.icon(
-                  minWidth: 0,
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).secondaryHeaderColor,
+                    minimumSize: Size(0, 0),
+                  ),
                   icon: Icon(Icons.videocam),
                   label: Text('Add video'),
                   onPressed: () => addVideo(),
-                  textColor: Theme.of(context).secondaryHeaderColor,
                 ),
                 isLoading
                     ? CircularProgressIndicator.adaptive()
-                    : FlatButton(
-                        minWidth: 0,
+                    : TextButton(
+                        style: ButtonStyle(
+                          minimumSize: MaterialStateProperty.resolveWith(
+                              (states) => Size(0, 0)),
+                          overlayColor: MaterialStateColor.resolveWith(
+                              (states) => Theme.of(context)
+                                  .primaryColorDark
+                                  .withOpacity(0.3)),
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -276,8 +287,6 @@ class _UploadPostFieldState extends State<UploadPostField> {
                           ],
                         ),
                         onPressed: () => _post(),
-                        splashColor:
-                            Theme.of(context).primaryColorDark.withOpacity(0.3),
                       ),
               ],
             ),

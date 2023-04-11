@@ -1,4 +1,3 @@
-import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:gangbook/models/user_model.dart';
 import 'package:gangbook/services/gang_db.dart';
@@ -34,9 +33,9 @@ class _JoinGangScreenState extends State<JoinGangScreen> {
 
   Future<void> _scan(BuildContext context) async {
     try {
-      String barcode = await BarcodeScanner.scan();
+      //String barcode = await BarcodeScanner.scan();
       setState(() {
-        idController.text = barcode;
+        //idController.text = barcode;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -104,7 +103,7 @@ class _JoinGangScreenState extends State<JoinGangScreen> {
                 SizedBox(height: 15),
                 isLoading
                     ? CircularProgressIndicator()
-                    : RaisedButton(
+                    : ElevatedButton(
                         onPressed: () => _join(),
                         child: Text(
                           'Join',

@@ -35,6 +35,7 @@ class AnotherUserProfile extends StatelessWidget {
               headerSliverBuilder: (context, value) {
                 return [
                   SliverAppBar(
+                    backgroundColor: Colors.transparent,
                     expandedHeight: userImageRaduis * 3,
                     flexibleSpace: FlexibleSpaceBar(
                       background: ProfileImageAndBG(

@@ -24,16 +24,17 @@ class GangModel {
       this.gangImage});
 
   GangModel.fromDocumentSnapshot(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     this.id = doc.id;
-    this.name = doc.data()['name'];
-    this.leader = doc.data()['leader'];
-    this.members = List<String>.from(doc.data()['members'])
+    this.name = data['name'];
+    this.leader = data['leader'];
+    this.members = List<String>.from(data['members'])
         .map<GangMember>((member) => GangMember.fromJson(member))
         .toList();
-    this.createdAt = doc.data()['createdAt'];
-    this.meetIds = List<String>.from(doc.data()['meetIds']);
-    this.isPrivate = doc.data()['isPrivate'] ?? false;
-    this.joinRequests = List<String>.from(doc.data()['joinRequests'] ?? []);
-    this.gangImage = doc.data()['gangImage'];
+    this.createdAt = data['createdAt'];
+    this.meetIds = List<String>.from(data['meetIds']);
+    this.isPrivate = data['isPrivate'] ?? false;
+    this.joinRequests = List<String>.from(data['joinRequests'] ?? []);
+    this.gangImage = data['gangImage'];
   }
 }

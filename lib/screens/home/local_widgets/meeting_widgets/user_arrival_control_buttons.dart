@@ -52,17 +52,19 @@ class UserArrivalControlButtons extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: RaisedButton(
+          child: ElevatedButton(
             onPressed: () => _meetAcception(
               context,
               ConfirmationType.Arrive,
             ),
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(
-                color: Theme.of(context).secondaryHeaderColor,
-                width: 3,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: Theme.of(context).secondaryHeaderColor,
+                  width: 3,
+                ),
               ),
             ),
             child: Text(
@@ -76,7 +78,7 @@ class UserArrivalControlButtons extends StatelessWidget {
         ),
         SizedBox(width: 20),
         Expanded(
-          child: RaisedButton(
+          child: ElevatedButton(
             onPressed: () => _meetAcception(
               context,
               ConfirmationType.NotArrive,
@@ -112,7 +114,7 @@ class UserArrivalControlButtons extends StatelessWidget {
               keyboardType: TextInputType.number,
             ),
             SizedBox(height: 10),
-            RaisedButton(
+            ElevatedButton(
               onPressed: () async {
                 Navigator.of(ctx).pop();
                 await showDialog(

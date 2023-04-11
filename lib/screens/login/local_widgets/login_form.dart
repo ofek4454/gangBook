@@ -131,7 +131,7 @@ class _LoginFormState extends State<LoginForm> {
             SizedBox(height: 20),
             isLoading
                 ? CircularProgressIndicator()
-                : RaisedButton(
+                : ElevatedButton(
                     onPressed: () => _submit(),
                     child: Text(
                       'Log In',
@@ -141,7 +141,7 @@ class _LoginFormState extends State<LoginForm> {
                           color: Colors.white),
                     ),
                   ),
-            FlatButton(
+            TextButton(
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -150,7 +150,9 @@ class _LoginFormState extends State<LoginForm> {
                 );
               },
               child: Text('Don\'t have an account? SignUp here'),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              style: TextButton.styleFrom(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
             SignInButton(
               Buttons.GoogleDark,

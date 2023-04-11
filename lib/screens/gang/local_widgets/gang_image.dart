@@ -18,7 +18,7 @@ class GangImage extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: Text('Choose image source'),
         actions: [
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(Icons.photo_library),
             label: Text('Gallery'),
             onPressed: () async {
@@ -26,7 +26,7 @@ class GangImage extends StatelessWidget {
               Navigator.of(ctx).pop(photo);
             },
           ),
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(Icons.camera_alt),
             label: Text('Camera'),
             onPressed: () async {
@@ -39,7 +39,7 @@ class GangImage extends StatelessWidget {
     );
 
     if (pickedImage == null) {
-      Scaffold.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('No image selected please try again'),
           backgroundColor: Theme.of(context).errorColor,
@@ -63,7 +63,7 @@ class GangImage extends StatelessWidget {
       margin: EdgeInsets.only(bottom: bottomMargin),
       child: Stack(
         alignment: Alignment.bottomCenter,
-        overflow: Overflow.visible,
+        // overflow: Overflow.visible,
         children: [
           ClipPath(
             clipper: CustomShapeClipper(),

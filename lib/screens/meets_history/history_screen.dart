@@ -21,12 +21,14 @@ class HistoryScreen extends StatelessWidget {
     int retVal = 0;
 
     for (MeetModel meet in meets) {
-      if (meet.membersAreComming
-              .firstWhere((eventMember) => eventMember.uid == uid)
-              .isComming ==
-          ConfirmationType.Arrive) {
-        retVal++;
-      }
+      try {
+        if (meet.membersAreComming
+                .firstWhere((eventMember) => eventMember.uid == uid)
+                .isComming ==
+            ConfirmationType.Arrive) {
+          retVal++;
+        }
+      } catch (e) {}
     }
 
     return retVal;

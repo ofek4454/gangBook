@@ -61,6 +61,7 @@ class ThereIsMeet extends StatelessWidget {
                                 fontSize: 20,
                                 color: Theme.of(context).secondaryHeaderColor,
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           SizedBox(height: 10),
                           Row(

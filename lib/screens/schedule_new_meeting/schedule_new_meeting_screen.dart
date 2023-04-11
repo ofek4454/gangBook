@@ -226,7 +226,7 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
                 controller: moreInfoController,
                 needValidation: false,
               ),
-              FlatButton(
+              TextButton(
                 onPressed: () {
                   FocusScope.of(context).unfocus();
                 },
@@ -236,7 +236,7 @@ class _ScheduleNewMeetingScreenState extends State<ScheduleNewMeetingScreen> {
                   ? Center(
                       child: CircularProgressIndicator(),
                     )
-                  : RaisedButton(
+                  : ElevatedButton(
                       onPressed: () => _schedule(),
                       child: Text(
                         'Schedule',
